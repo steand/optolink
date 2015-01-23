@@ -1,9 +1,9 @@
 package de.myandres.optolink;
 
-
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -14,219 +14,296 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Config {
-	
-    static Logger log = LoggerFactory.getLogger(Config.class);	
+/*
+ * Contains Data from xml-File 
+ * This Data will be static only - dynamic data are stored in DataStore
+ */
 
-    private volatile String tty;
-	private volatile int    port;
-	private volatile String deviceType;
-	private volatile String protocol;
-	private volatile List<Telegram> telegramList;
-	private volatile int telegramIt;
-	
+public class Config {
+
+	static Logger log = LoggerFactory.getLogger(Config.class);
+
+	private String tty;
+	private int port = 12001; // default
+	private int subscriberPort = 12002; // default
+	private int interval = 5 * 60; // 5 Minutes
+	private String deviceType;
+	private String protocol;
+	private List<Telegram> telegramList;
+
 	Config(String fileName) throws Exception {
 		telegramList = new ArrayList<Telegram>();
-	      // create XMLReader 
-	      XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-	      
-	      log.trace("Try to open File {} open",fileName);
-	      // Pfad tho XML Datei
-	      FileReader reader = new FileReader(fileName);
-	      InputSource inputSource = new InputSource(reader);
-	      
-	      log.info("File {} open for parsing");
+		// create XMLReader
+		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 
-	      // set ContentHandler
-	      xmlReader.setContentHandler(new xHandler());
+		log.debug("Try to open File {}", fileName);
+		// Pfad tho XML Datei
+		FileReader reader = new FileReader(fileName);
+		InputSource inputSource = new InputSource(reader);
 
-	      // start parser
-	      log.debug("Start parsing");
-	      xmlReader.parse(inputSource);
-	      log.info("{} Telegram's are parsed", telegramList.size());
+		log.info("File {} open for parsing", fileName);
+
+		// set ContentHandler
+		xmlReader.setContentHandler(new xHandler());
+
+		// start parser
+		log.debug("Start parsing");
+		xmlReader.parse(inputSource);
+		log.info("{} Telegram's are parsed", telegramList.size());
 	}
-	
-	public void addTelegram(Telegram t){
-		t.setIndex(telegramList.size()); 
+
+	private void addTelegram(Telegram telegram) {
+		Telegram t = new Telegram();
+		t = telegram;
+		t.setIndex(telegramList.size());
 		telegramList.add(new Telegram(t));
 	}
-	
-	public void updateTelegram(Telegram t){
-		Telegram telegram = telegramList.get(t.getIndex());
-		telegram =t;
-		telegramList.set(t.getIndex(), telegram);
-	}
-	
-	public Telegram getTelegramByName(String name){
-		name=name.toLowerCase();
-		for (int i=0; i<telegramList.size(); i++) {
-			if (name.equals(telegramList.get(i).getName().toLowerCase())) return telegramList.get(i);
+
+	public Telegram getTelegram(int address) {
+		for (int i = 0; i < telegramList.size(); i++) {
+			if (address == telegramList.get(i).getAddress())
+				return telegramList.get(i);
 		}
-	    return null;
-	}
-	
-	public boolean existAddress(String address) {
-		int adr= Integer.parseInt(address,16);
-		for (int i=0; i<telegramList.size(); i++) {
-			if (telegramList.get(i).getAddress() == adr ) return true;
-		}
-		return false;
-	}
-	
-	public Telegram getTelegramByAddress(String address){
-		int adr= Integer.parseInt(address,16);
-		for (int i=0; i<telegramList.size(); i++) {
-			if (telegramList.get(i).getAddress() == adr ) return telegramList.get(i);
-		}
-	    return null;
-	}
-	
-	public int getTelegramSize() {
-		return telegramList.size();
-	}
-	
-	public String printTelegram(int index) {
-		Telegram t=telegramList.get(index);
-		String s = t.getName();
-		return s;
-	}
-	
-	public Telegram getFirstTelegram(){
-		telegramIt=0;
-		if (telegramList.size()>0) return telegramList.get(0);
 		return null;
 	}
-	
-	public Telegram getNextTelegram(){
-		if (++telegramIt < telegramList.size()) return telegramList.get(telegramIt);
-		return null;	
-	}
-	
 
-	public String getTty() {
+	public Telegram getTelegram(String address) {
+		try {
+			int addr = Integer.parseInt(address, 16);
+			return getTelegram(addr);
+		} catch (NumberFormatException e) {
+			log.error("Invalid  Address format: {}", address);
+			return null;
+		}
+	}
+
+	public int getTelegramListSize() {
+		return telegramList.size();
+	}
+
+	public Telegram getTelegramByIndex(int index) {
+		try {
+			return telegramList.get(index);
+		} catch (IndexOutOfBoundsException e) {
+			log.error("Invalid  Index ({}) in TelegramList", index);
+			return null;
+		}
+
+	}
+
+	public String viewTelegramDefinition(int index) {
+		Telegram t = telegramList.get(index);
+		String s = String.format("%04X", t.getAddress()) + ":";
+		// OpenHAB Item Types
+		switch (t.getType()) {
+		case Telegram.INT:
+			s += "Number";
+			break;
+		case Telegram.UINT:
+			s += "Number";
+			break;
+		case Telegram.FLOAT:
+			s += "Number";
+			break;
+		case Telegram.BOOLEAN:
+			s += "Switch";
+			break;
+		case Telegram.DATE:
+			s += "DateTime";
+			break;
+		default:
+			s += "*unknown";
+		}
+		return s += "," + t.getAccessAsString() + "," + t.getName();
+	}
+
+	// Setter/Getter
+
+	private void setTTY(String s) {
+		tty = s;
+		log.info("Set tty: {}", tty);
+	}
+
+	public String getTTY() {
 		return tty;
 	}
 
-	public void setPort(int port) {
-		this.port=port;
+	private void setPort(String s) {
+		try {
+			port = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			log.error("Wrong Format for Port: {}", s);
+		}
+		log.info("Set Socket Port: {}", port);
 	}
-	
+
 	public int getPort() {
 		return port;
 	}
-	
+
+	private void setInterval(String s) {
+		try {
+			interval = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			log.error("Wrong Format for Interval: {}", s);
+		}
+		log.info("Set polling interval: {} Seconds", interval);
+	}
+
+	public int getInterval() {
+		return interval;
+	}
+
 	public String getDevice() {
 		return deviceType;
 	}
-	
+
 	public String getProtocol() {
 		return protocol;
 	}
 	
+	public int getSubscriberPort() {
+		return subscriberPort;
+	}
+
+	private void setSubscriberPort(String subscriberPort) {
+		try {
+			this.subscriberPort = Integer.parseInt(subscriberPort);
+		} catch (NumberFormatException e) {
+			log.error("Wrong Format for subscriberPort: {}", subscriberPort);
+		}
+		log.info("Set Socket for subscriberPort: {}", this.subscriberPort);
+	}
+
 	
-	// Handler zum lesen der xml-Tags
+	
+	public boolean existTelegram(int address) {
+		for (int i=0; i<telegramList.size(); i++) { 
+			log.trace("{}: {} = {}", i, address, telegramList.get(i).getAddress());
+			if (address == telegramList.get(i).getAddress()) return true;
+		}
+		return false;
+	} 
+	
+	public boolean existTelegram(String address) {
+		try {
+			int addr = Integer.parseInt(address, 16);
+			log.trace("{} - > {}", address, addr);
+			return existTelegram(addr);
+		} catch (NumberFormatException e) {
+			log.error("Invalid  Address format: {}", address);
+			return false;
+		}
+	}
+	
+	// Handler for reading xml-Tags
 	public class xHandler implements ContentHandler {
-		
-        private Telegram telegram = new Telegram();
+
+		private Telegram telegram = new Telegram();
 		private String path;
-		
 
 		@Override
-		public void characters(char[] ch, int start, int length) throws SAXException {
+		public void characters(char[] ch, int start, int length)
+				throws SAXException {
 			String s = new String(ch, start, length);
-			switch(path) {
-			case "root.optolink.tty": tty=s; break;
-			case "root.optolink.port": port=Integer.parseInt(s); break;	
+			switch (path) {
+			case "root.optolink.tty":
+				setTTY(s);
+				break;
+			case "root.optolink.port":
+				setPort(s);
+				break;
+			case "root.optolink.interval":
+				setInterval(s);
+				
+			case "root.optolink.subscriberPort":
+				setSubscriberPort(s);
 			}
-			
-		}
+
+		} 
 
 		@Override
 		public void endDocument() throws SAXException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void endElement(String uri, String localName, String pName)
 				throws SAXException {
-			
+
 			if (localName.equals("telegram")) {
 				addTelegram(telegram);
-			}		
-			path=path.substring(0, path.lastIndexOf('.'));     			
+			}
+			path = path.substring(0, path.lastIndexOf('.'));
 		}
 
 		@Override
 		public void startDocument() throws SAXException {
-			path="root";
-			
+			path = "root";
+
 		}
 
 		@Override
 		public void startElement(String uri, String localName, String pName,
 				Attributes attr) throws SAXException {
-			path=path+"."+localName;
-			switch(path) {
-			case "root.optolink"  : 
-				deviceType=attr.getValue("device");
-				protocol=attr.getValue("protocol");	
+			path = path + "." + localName;
+			switch (path) {
+			case "root.optolink":
+				deviceType = attr.getValue("device");
+				protocol = attr.getValue("protocol");
 				break;
-			case "root.optolink.telegram" : 
+			case "root.optolink.telegram":
 				telegram.setAddress(attr.getValue("address"));
 				telegram.setName(attr.getValue("name"));
 				telegram.setAccess(attr.getValue("access"));
 				telegram.setType(attr.getValue("type"));
 				telegram.setLength(attr.getValue("length"));
-				telegram.setDiv(attr.getValue("div"));		
+				telegram.setDivider(attr.getValue("divider"));
 				break;
 			}
-			
-			
+
 		}
 
 		@Override
 		public void endPrefixMapping(String prefix) throws SAXException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void ignorableWhitespace(char[] ch, int start, int length)
 				throws SAXException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void processingInstruction(String target, String data)
 				throws SAXException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void setDocumentLocator(Locator locator) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void skippedEntity(String name) throws SAXException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void startPrefixMapping(String prefix, String uri)
 				throws SAXException {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 	} // Handler
-
-	
-	
 
 }

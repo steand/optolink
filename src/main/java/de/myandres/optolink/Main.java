@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 public class Main {
 	
     static Logger log = LoggerFactory.getLogger(Main.class);
-    
+    static Config config;
+    static DataStore dataStore;
+    static Optolink optolink;
     
     
 	public static void main(String[] args) {
@@ -16,16 +18,25 @@ public class Main {
 	    log.info("Programm gestartet");	    
 	    
 	    try {
-
-            final Config config = new Config("src/main/resources/optolink.xml");
+            // Central Thread Data
+//            config = new Config("src/main/resources/optolink.xml");
+            config = new Config("optolink.xml");
+            dataStore = new DataStore();
+            dataStore.setInterval(config.getInterval());
             
-            OptolinkHandler oh = new OptolinkHandler(config);
-            SocketHandler sh = new SocketHandler(config);
-            
-           //  new Thread(oh).start();
-            new Thread(sh).start();
+            //Start TTY Handling for Optolink
+            optolink = new Optolink(config);
             
             
+            
+            OptolinkHandler oh = new OptolinkHandler(config, dataStore);
+            SocketHandler sh = new SocketHandler(config, dataStore, optolink);
+            
+            
+           new Thread(oh).start();
+           new Thread(sh).start();
+            
+       
             
             log.debug("Programm normal ended");
         }  catch (Exception e) {     	
