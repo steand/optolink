@@ -8,17 +8,20 @@ public class Telegram {
 	static Logger log = LoggerFactory.getLogger(Telegram.class);
 	
 	// Types of Viessmann 
-	public final static byte INT  =    01; // 4 Byte -> int
-	public final static byte UINT =    02; // 4 Byte -> int
-	public final static byte BOOLEAN = 03; // 1 Byte -> boolean
-	public final static byte FLOAT =   04; // 4 byte -> float
-    public final static byte DATE =    05; // 8 Byte -> date
-    public final static byte DUMP =    99; // Dump for unknown Telegram-Type
+	public final static byte BOOLEAN =   1; // 1 Byte -> boolean
+	public final static byte BYTE    =   2; // 1 Byte -> short
+	public final static byte UBYTE   =   3; // 1 Byte -> short
+	public final static byte SHORT  =    4; // 2 Byte -> int
+	public final static byte USHORT =    5; // 2 Byte -> int
+	public final static byte INT =       6; // 4 byte -> long
+    public final static byte UINT =      7; // 4 Byte -> long
+    public final static byte DATE =      8; // 8 Byte -> date
+    public final static byte DUMP =      99; // Dump for unknown Telegram-Type
 
  	
-	public final static byte READ =    01; // access="r"
-	public final static byte WRITE =   02; // access="w"
-	public final static byte READ_WRITE = 03; // access="r/w"
+	public final static byte READ =       1; // access="r"
+	public final static byte WRITE =      2; // access="w"
+	public final static byte READ_WRITE = 3; // access="r/w"
 	
 
 	private String name;
@@ -26,7 +29,7 @@ public class Telegram {
 	private int address; 
 	private short length;
 	private byte type;
-	private float divider; 
+	private short divider; 
 	private int index;
 	
 	
@@ -36,7 +39,7 @@ public class Telegram {
     	address = 0;
 		length = 0;
 		type = Telegram.DUMP;
-		divider = 1.0f; 
+		divider = 1; 
 	}
 	
 	Telegram(int index) {
@@ -46,7 +49,7 @@ public class Telegram {
     	address = 0;
 		length = 0;
 		type = Telegram.DUMP;
-		divider = 1.0f; 
+		divider = 1; 
 	}
 	
 	Telegram(Telegram t) {
@@ -97,54 +100,63 @@ public class Telegram {
     	log.trace("Set Adress to {}({})", address, this.address);	
 	}
 
-	public void setLength(String length) {
-		if (length==null) {
-			log.error("Telegram length not set");
-			this.length=0;
-			return;
-		}
-		try {
-			this.length=Short.parseShort(length);
-		} 
-		catch (NumberFormatException e) {
-			log.error("Invalid length format: {}", length);
-			length="0";
-		}
-	    log.trace("Set Length to {}", length);
-	}
-
 	
 
 	public void setType(String type) {
-		if (type==null)  log.error("Telegram Type not set"); 
-		else { 
-			switch(type.toLowerCase()) {
-			case "int": this.type = Telegram.INT; break;
-			case "uint": this.type = Telegram.UINT; break;
-			case "boolean": this.type = Telegram.BOOLEAN; break;
-			case "float": this.type = Telegram.FLOAT; break;
-			case "date": this.type = Telegram.DATE; break;
-			case "dump": this.type = Telegram.DUMP; break; // for Diag
+		if (type == null)
+			log.error("Telegram Type not set");
+		else {
+			switch (type.toLowerCase()) {
+			case "boolean":
+				this.type = Telegram.BOOLEAN;
+				length=1;
+				break;
+			case "byte":
+				this.type = Telegram.BYTE;
+				length=1;
+				break;
+			case "ubyte":
+				this.type = Telegram.UBYTE;
+				length=1;
+				break;
+			case "short":
+				this.type = Telegram.SHORT;
+				length=2;
+				break;
+			case "ushort":
+				this.type = Telegram.USHORT;
+				length=2;
+				break;
+			case "int":
+				this.type = Telegram.INT;
+				length=4;
+				break;
+			case "uint":
+				this.type = Telegram.UINT;
+				length=4;
+				break;
 			default: {
 				log.error("Unknown Type: {}", type);
-				this.type=Telegram.DUMP;
-				}
+				this.type = Telegram.DUMP;
+				length=0;
+
 			}
-		}	
-	   	log.trace("Set Type to {}({})", type, this.type);
+			}
+		}
+		log.trace("Set Type to {}({}) length={}", type, this.type, length);
 	}
 	
 	public void setDivider(String divider) {
 		if (divider==null) {
-			log.info("divider not set - set to default: 1.0"); 
-		    this.divider=1.0f;
+			log.info("divider not set - set to default: 1"); 
+		    this.divider=1;
 		} else {
 		  try {
-			this.divider=Float.parseFloat(divider);
+			this.divider=Short.parseShort(divider);
 			} 
 			catch (NumberFormatException e) {
-				log.error("Invalid  divider format: {} - set to default: 1.0", divider);
-				this.divider=1.0f;
+				log.error("Invalid  divider format: {} - set to default: 1", divider);
+				this.divider=1;
 			}
 		}
 		log.trace("Set dividerider to {}", this.divider);
@@ -192,7 +204,7 @@ public class Telegram {
 	}
 
 
-	public float getDivider() {
+	public short getDivider() {
 		return divider;
 	}
 

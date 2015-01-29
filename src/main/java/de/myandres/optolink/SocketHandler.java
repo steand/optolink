@@ -22,12 +22,12 @@ public class SocketHandler implements Runnable {
 	private Config config;
 	private DataStore dataStore;
 	private ServerSocket server;
-	private Optolink optolink;
+	private Viessmann viessmann;
 
-	SocketHandler(Config config, DataStore dataStore, Optolink optolink) {
+	SocketHandler(Config config, DataStore dataStore, Viessmann viessmann) {
 		this.config = config;
 		this.dataStore = dataStore;
-		this.optolink = optolink;
+		this.viessmann = viessmann;
 		
 		try {
 			server = new ServerSocket(config.getPort());
@@ -82,7 +82,7 @@ public class SocketHandler implements Runnable {
         
         System.out.println("open");
         
-        out.println("Helo from optolink");
+        out.println("Helo from viessmann");
         
         while(!exit) {
             String [] inStr = in.readLine().trim().split(" +");
@@ -94,26 +94,15 @@ public class SocketHandler implements Runnable {
             case "get" : get(inStr[1]); break;
             case "set" : set(); break;
             case "setint" : setInt(inStr[1]); break;
-            case "test" : testIt(inStr); break;
             case "exit" : exit=true; break;
             default: log.error("Unknown Client Command:", inStr[0]); 
             } 
         } 
         
-        out.println("By from optolink");
+        out.println("By from viessmann");
 		
 	}
 
-	public void testIt(String[] inStr) {
-		for (int i=0; i<6;i++) {
-			
-			optolink.psend(0x04);
-			optolink.psend(0x16);
-			optolink.psend(0x0);
-			optolink.psend(0x0);
-      		while (optolink.pread() != -1){} ;
-			};
-	}
 
 	private void setInt(String interval) {
 		try {
@@ -130,18 +119,8 @@ public class SocketHandler implements Runnable {
 	}
 
 	private void get(String inStr) {
-		Telegram t = config.getTelegram(inStr);
-		optolink.startSession();
-		byte [] buffer = new byte[32];
-		if (t != null) {
-			optolink.startSession();
-			optolink.getData(buffer, t.getAddress(), t.getLength());
-			optolink.stopSession();
-		} else {
-			log.error("Can't get Data for address: {} - address not exist", inStr);
-		}
+		viessmann.get(inStr);
 
-		
 	}
 
 	private void list(PrintStream out) {

@@ -24,9 +24,10 @@ public class Config {
 	static Logger log = LoggerFactory.getLogger(Config.class);
 
 	private String tty;
-	private int port = 12001; // default
+	private int ttyTimeOut = 2000;      //default
+	private int port = 12001;           // default
 	private int subscriberPort = 12002; // default
-	private int interval = 5 * 60; // 5 Minutes
+	private int interval = 5 * 60;      // 5 Minutes
 	private String deviceType;
 	private String protocol;
 	private List<Telegram> telegramList;
@@ -96,13 +97,22 @@ public class Config {
 		String s = String.format("%04X", t.getAddress()) + ":";
 		// OpenHAB Item Types
 		switch (t.getType()) {
+		case Telegram.BYTE:
+			s += "Number";
+			break;
+		case Telegram.UBYTE:
+			s += "Number";
+			break;		
+		case Telegram.SHORT:
+			s += "Number";
+			break;
+		case Telegram.USHORT:
+			s += "Number";
+			break;
 		case Telegram.INT:
 			s += "Number";
 			break;
 		case Telegram.UINT:
-			s += "Number";
-			break;
-		case Telegram.FLOAT:
 			s += "Number";
 			break;
 		case Telegram.BOOLEAN:
@@ -153,6 +163,20 @@ public class Config {
 	public int getInterval() {
 		return interval;
 	}
+	
+	private void setTtyTimeOut(String s) {
+		try {
+			ttyTimeOut = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			log.error("Wrong Format for TTY Timeout: {}", s);
+		}
+		log.info("Set TTY Timeout: {} Milliseconds", interval);
+	}
+
+	public int getTtyTimeOut() {
+		return ttyTimeOut;
+	}
+
 
 	public String getDevice() {
 		return deviceType;
@@ -210,6 +234,9 @@ public class Config {
 			case "root.optolink.tty":
 				setTTY(s);
 				break;
+			case "root.optolink.ttytimeout":
+				setTtyTimeOut(s);
+				break;
 			case "root.optolink.port":
 				setPort(s);
 				break;
@@ -258,7 +285,6 @@ public class Config {
 				telegram.setName(attr.getValue("name"));
 				telegram.setAccess(attr.getValue("access"));
 				telegram.setType(attr.getValue("type"));
-				telegram.setLength(attr.getValue("length"));
 				telegram.setDivider(attr.getValue("divider"));
 				break;
 			}

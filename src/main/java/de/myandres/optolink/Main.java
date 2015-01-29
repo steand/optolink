@@ -8,7 +8,7 @@ public class Main {
     static Logger log = LoggerFactory.getLogger(Main.class);
     static Config config;
     static DataStore dataStore;
-    static Optolink optolink;
+    static Viessmann viessmann;
     
     
 	public static void main(String[] args) {
@@ -25,12 +25,12 @@ public class Main {
             dataStore.setInterval(config.getInterval());
             
             //Start TTY Handling for Optolink
-            optolink = new Optolink(config);
+            viessmann = new Viessmann(config);
             
             
             
             OptolinkHandler oh = new OptolinkHandler(config, dataStore);
-            SocketHandler sh = new SocketHandler(config, dataStore, optolink);
+            SocketHandler sh = new SocketHandler(config, dataStore, viessmann);
             
             
            new Thread(oh).start();
