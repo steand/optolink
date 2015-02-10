@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015,  Stefan Andres.  All rights reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-3.0.html
+ *  
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *******************************************************************************/
 package de.myandres.optolink;
 
 import org.slf4j.Logger;
@@ -7,44 +20,83 @@ public class Viessmann300 implements ViessmannProtocol {
 
 	static Logger log = LoggerFactory.getLogger(Viessmann300.class);
 
-	private ComPort comPort;
+	private OptolinkInterface optolinkInterface;
 
-	private boolean isSession;
-
-	Viessmann300(String port, int timeout) throws Exception {
-		log.debug("Init Viessmann Optolink Interface, Protokoll 300");
-		comPort = new ComPort(port, timeout);
-		isSession = false;
-		log.debug("Init compled");
-
-	}
 	
-    // Communication handling
-    public synchronized void close() {
-            log.debug("Try to close: Viessmann Optolink Interface, Protokoll 300" );
-            comPort.close();
-            log.debug("Viessmann Optolink Interface closed");
+	Viessmann300(OptolinkInterface optolinkInterface) {
+		log.debug("Try to start Session for Protokoll: 300");
+		this.optolinkInterface = optolinkInterface;
+		startSession();
+		log.info("Start Session for Protokoll: 300");
+	}
+
+	
+	@Override
+    public synchronized int getData (byte[] buffer, int address, int length) {
+		
+            byte[] localBuffer = new byte[16];
+            int returNumberOfBytes;
+            
+            for (int i=0; i<2; i++) {
+            
+            log.debug(String.format("Try to get Data for address %04X returned ", address)); 
+
+            // construct TxD
+
+            localBuffer[0] = 0x00;                    // Request
+            localBuffer[1] = 0x01;                    // reading Data
+            localBuffer[2] = (byte)(address >> 8);    // upper Byte of address
+            localBuffer[3] = (byte)(address & 0xff);  // lower Byte of address
+            localBuffer[4] = (byte)length;            // number of expected bytes
+
+
+           if ( transmit(localBuffer,5)) {;         // send Buffer 
+
+            // RxD
+            returNumberOfBytes = resive(localBuffer);  // read answer 
+            
+            if (returNumberOfBytes > 0) {
+
+                // check RxD 
+               int returnAddress;
+               if (localBuffer[0] == 0x03) log.error("Answer Byte is 0x03: Return Error(Wrong Adress,maybe)");
+               if (localBuffer[0] != 0x01) log.error("Answer Byte (0x01) expect, but: 0x{} resived", String.format("%02X", localBuffer[0]));
+               if (localBuffer[1] != 0x01) log.error("DataRead Byte (0x01) expect, but: 0x{} resived", String.format("%02X",buffer[1]));
+               returnAddress = ((localBuffer[2] & 0xFF) << 8) + ((int)localBuffer[3] & 0xFF); // Address
+               if (returnAddress != address) log.error(String.format("Adress (%04X) expect, but: %04X resived", address, returnAddress));
+               for (int j=0;j<localBuffer[4];j++) buffer[j] =localBuffer[j+5];  // copy Result 
+               log.debug(String.format("getData from Optolink for address %04X returned: ", address)); 
+               return (returNumberOfBytes-5); // buffer length
+             } }
+            }
+            log.error("!!!!!!!!!!!!!!!! Trouble with communication to OptolinkInterface !!!!!!!!" );
+            log.error("!!!!!!!!!!!!!!!! Pleace check hardware !!!!!!!!" );
+
+            return -1; // UPS
     }
+	
+	@Override
+	public void setData(byte[] buffer, int address, int length) {
+		// TODO Auto-generated method stub
+		
+	}
 
 
-    // Optolink Session handling
-    public synchronized void startSession() {
+	// Private Methods
+	
+    // OptolinkInterface  Session handling
+	
+    private synchronized void startSession() {
  
-	        log.debug("Open Session to Optolink");
-	        if (isSession) {
-	        	log.debug("Session to optolink already opened");
-	        	return;
-	        }    
-            comPort.write(0x04);              // close communication, if open
-            comPort.flush();                  // flash Input Buffer        
+            optolinkInterface.write(0x04);              // close communication, if open
+            optolinkInterface.flush();                  // flash Input Buffer        
             for (int i=0; i<5; i++) {         // try 5 times to sync 
-               comPort.write(0x16);           // send Init
-               comPort.write(0x00);
-               comPort.write(0x00);
-               if (comPort.read() == 0x06) {               // catch Ack 
+               optolinkInterface.write(0x16);           // send Init
+               optolinkInterface.write(0x00);
+               optolinkInterface.write(0x00);
+               if (optolinkInterface.read() == 0x06) {               // catch Ack 
             	   log.trace(" [ACK]");
             	   log.debug("Session to Optolink opened");
-            	   isSession = true;
                    return; // Init is OK
                }
                log.trace("Open Session to Optolink [ACK] failed");
@@ -52,96 +104,37 @@ public class Viessmann300 implements ViessmannProtocol {
             log.error("Can't open Session to Optolink");
     }
 
-    public synchronized void stopSession() {
-            int ret;
-            log.debug("Try to Close Optolink Session");
-	        if (!isSession) {
-	        	log.debug("Session to optolink already closed");
-	        	return;
-	        }    
 
-            for (int i=0; i<5; i++) {             // try 5 times to close
-                comPort.write(0x04);              //  close communication 
-                ret = comPort.read();
-                if (ret == 0x06) {               
-        	      log.trace("[ACK] resived");
-                  log.debug("Session to optolink closed");
-                  isSession = false;
-                  return; // Close  OK
-                }
-
-               if (ret == 0x05) {                    // Session already closed (why, i don't now)
-                       log.debug("Session to optolink already closed");
-                       return; // Close  OK
-               }
-               log.error("Closing session to optolink failed");
-            }
-    }
-
-
-    public synchronized int getData (byte[] buffer, int address, int length) {
-            byte[] lb = new byte[16];
-            
-            log.debug(String.format("Try to get Data for address %#04X returned ", address)); 
-            if (!isSession) {
-	        	log.error("Session Optolink not opened");
-	        	return -1;
-	        }   
-
-            // construct TxD
-
-            lb[0] = 0x00;                    // Request
-            lb[1] = 0x01;                    // reading Data
-            lb[2] = (byte)(address >> 8);    // upper Byte of address
-            lb[3] = (byte)(address & 0xff);  // lower Byte of address
-            lb[4] = (byte)length;            // number of expected bytes
-
-
-            transmit(lb,5);         // send Buffer 
-
-            // RxD
-            int rlen = resive(lb);  // read answer 
-
-            // check RxD 
-            int raddr;
-            if (lb[0] == 0x03) log.error("Answer Byte is 0x03: Return Error(Wrong Adress,maybe)");
-            if (lb[0] != 0x01) log.error("Answer Byte (0x01) expect, but: {} resived", String.format("%#02X", lb[0]));
-            if (lb[1] != 0x01) log.error("DataRead Byte (0x01) expect, but: {} resived", String.format("%#02X",buffer[1]));
-            raddr = ((lb[2] & 0xFF) << 8) + ((int)lb[3] & 0xFF); // Address
-            if (raddr != address) log.error(String.format("Adress (%#04X) expect, but: %#04X resived", address, raddr));
-            for (int i=0;i<lb[4];i++) buffer[i] =lb[i+5];  // coppy Result 
-            log.debug(String.format("getData from Optolink for address %#04X returned: ", address)); 
-            return (rlen-5); // buffer length 
-    }
-
-// RxD Telegram
+    // RxD Telegram
     private synchronized int resive(byte[] buffer) {
-            log.debug("Try to resive Data from Optolink");
-            int ret=comPort.read();
+            log.debug("Try to resive Data from OptolinkInterface");
+            int ret=optolinkInterface.read();
             if (ret != 0x41) {
             	log.error(String.format("Start Byte (0x41) expect, but: %#02X", ret));
-            	comPort.flush();
+            	optolinkInterface.flush();
             	return -1;
             }
 
             // number of bytes in received data
-            int rlen=comPort.read();
-            int rcheck=rlen;    //Checksum
+            int returnLength=optolinkInterface.read();
+            int returnChecksum=returnLength;    //Checksum
 
             // reading all data bytes
-            for (int i=0;i<rlen;i++){
-                    buffer[i]=(byte)comPort.read();
-                    rcheck+=buffer[i];      //count checksum 
+            for (int i=0;i<returnLength;i++){
+                    buffer[i]=(byte)optolinkInterface.read();
+                    returnChecksum+=buffer[i];               //count checksum 
             }
-            rcheck = rcheck & 0xFF; //expected checksum 8 low bit's .
-            int bcheck=comPort.read();    // read checksum 
-            if (rcheck != bcheck) log.error(String.format("Checksumme (%#02X) expect, but: %#02X resived", rcheck, bcheck));
-            log.debug("Data reseved from Optolink: [OK]");
+            returnChecksum = returnChecksum & 0xFF;         //expected checksum 8 low bit's .
+            int bufferChecksum=optolinkInterface.read();    // read checksum 
+            if (returnChecksum != bufferChecksum) {
+            	log.error(String.format("Checksumme (%#02X) expect, but: %#02X resived", returnChecksum, bufferChecksum));
+            }
+            log.debug("Data reseved from OptolinkInterface: [OK]");
             if (log.isTraceEnabled()) {
-            	// Dump Result
-            	log.trace("Dump Data (No. dec hex binary)");
+            	// Dump Result if Trace is on
+            	log.trace("Dump Data (No. decimal hexadcimal binary)");
             	int tempI;
-            	for (int i = 0; i<rlen;i++) {
+            	for (int i = 0; i<returnLength;i++) {
             		tempI = buffer[i] & 0xFF;
             		log.trace("[{}] {} {}", i, 
             				String.format("%03d %02X", tempI, tempI),
@@ -149,35 +142,41 @@ public class Viessmann300 implements ViessmannProtocol {
             		
             	}
             }
-            return rlen; // OK
+            return returnLength; // OK
     }
 
     // TxD Telegram
-    private synchronized void transmit(byte[] buffer, int len) {
+    private synchronized boolean transmit(byte[] buffer, int len) {
     	
-    	    log.debug("Try to transmit Data to Optolink");
+    	    log.debug("Try to transmit Data to OptolinkInterface");
 
             // TxD build Checksum
-            int check = len;
-            for (int i=0;i<len;i++) check+=buffer[i];
+            int checksum = len;
+            for (int i=0;i<len;i++) checksum+=buffer[i];
 
-            comPort.write(0x41);                            // Telegram start byte
-            comPort.write(len);                             // nuber of byte
+            optolinkInterface.write(0x41);                            // Telegram start byte
+            optolinkInterface.write(len);                             // nuber of byte
 
             for (int i=0; i<len; i++) {                    // send data
-                    comPort.write(buffer[i]);
+                    optolinkInterface.write(buffer[i]);
             }
-            comPort.write(check & 0xFF);                    // send Checksum
+            optolinkInterface.write(checksum & 0xFF);                    // send Checksum
 
 
             //  Wait for Acknowledge (0x06)
-            int ret =comPort.read();
+            int ret =optolinkInterface.read();
             if (ret != 0x06){
                     log.error(String.format("acknowledge (0x06) expect, but: %02X resived", ret));
+                    if (ret == 0x05) {
+                    	log.info(String.format("0x05 resived: Session maybe stoped! Try to restart session"));
+                    	startSession();
+                    }
+                    return false;
             }            
-            log.debug("Data transmit to Optolink: [OK]");
+            log.debug("Data transmit to OptolinkInterface: [OK]");
+            return true;
     }
 
- 
+
 
 }

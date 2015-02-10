@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015,  Stefan Andres.  All rights reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-3.0.html
+ *  
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *******************************************************************************/
 package de.myandres.optolink;
 
 import org.slf4j.Logger;
@@ -8,34 +21,28 @@ public class ViessmannKW implements ViessmannProtocol {
 	
 	static Logger log = LoggerFactory.getLogger(ViessmannKW.class);
 
-	private ComPort comPort;
+	private OptolinkInterface optolinkInterface;
 
 
-	ViessmannKW(String port, int timeout) throws Exception {
-		log.debug("Init Viessmann Optolink Interface, Protokoll KW not implemented jet");
-//		comPort = new ComPort(port, timeout);
-		log.debug("Init compled");
-		throw new Exception();
+	ViessmannKW(OptolinkInterface optolinkInterface) {
+		this.optolinkInterface = optolinkInterface;
+		log.error("Init Viessmann Optolink Interface, Protokoll KW not implemented jet");
 
 	}
 	
-
-	@Override
-	public void startSession() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopSession() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public int getData(byte[] buffer, int address, int length) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+
+	@Override
+	public void setData(byte[] buffer, int address, int length) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

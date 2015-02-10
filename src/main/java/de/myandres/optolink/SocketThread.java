@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015,  Stefan Andres.  All rights reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-3.0.html
+ *  
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *******************************************************************************/
 package de.myandres.optolink;
 
 /*
@@ -15,19 +28,19 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SocketHandler implements Runnable {
+public class SocketThread implements Runnable {
 
-	static Logger log = LoggerFactory.getLogger(SocketHandler.class);
+	static Logger log = LoggerFactory.getLogger(SocketThread.class);
 
 	private Config config;
 	private DataStore dataStore;
 	private ServerSocket server;
-	private Viessmann viessmann;
+	private ViessmannHandler viessmannHandler;
 
-	SocketHandler(Config config, DataStore dataStore, Viessmann viessmann) {
+	SocketThread(Config config, DataStore dataStore, ViessmannHandler viessmannHandler) {
 		this.config = config;
 		this.dataStore = dataStore;
-		this.viessmann = viessmann;
+		this.viessmannHandler = viessmannHandler;
 		
 		try {
 			server = new ServerSocket(config.getPort());
@@ -102,6 +115,7 @@ public class SocketHandler implements Runnable {
 //            	getData(inStr[1]);
             	break;
             case "set" : set(); break;
+            case "testme" : testMe(); break;
             case "setint" : setInt(inStr[0]); break;
             case "exit" : exit=true; break;
             default: log.error("Unknown Client Command:", inStr[0]); 
@@ -112,6 +126,11 @@ public class SocketHandler implements Runnable {
 		
 	}
 
+
+	private void testMe() {
+		// Listen wenn session closed
+		
+	}
 
 	private String getall() {
 		String[] s = new String[30];
@@ -138,15 +157,18 @@ public class SocketHandler implements Runnable {
 	}
 
 	private String getData(String[] address ) {
+		String returnStr="";
 		log.trace("Try to get Data for Addresses");
+		for (int i=0; ((i<address.length) && (address[i] != null)); i++) {
 		try {
-			  return viessmann.readData(address);		 
+			  returnStr+= viessmannHandler.readTelegramValue(config.getTelegram(address[i])) + "\n";		 
 			}
 			catch (Exception e) {
 				log.error("Error in get command",e);
 			}
+		}
 		
-		return "nix";
+		return returnStr;
 	}
 	
 	

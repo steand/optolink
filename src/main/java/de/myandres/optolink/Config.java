@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015,  Stefan Andres.  All rights reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-3.0.html
+ *  
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *******************************************************************************/
 package de.myandres.optolink;
 
 import java.io.FileReader;
@@ -179,7 +192,7 @@ public class Config {
 	}
 
 
-	public String getDevice() {
+	public String getDeviceType() {
 		return deviceType;
 	}
 
@@ -203,6 +216,7 @@ public class Config {
 	
 	
 	public boolean existTelegram(int address) {
+		log.debug("Test if Telegramm {} exist");
 		for (int i=0; i<telegramList.size(); i++) { 
 			log.trace("{}: {} = {}", i, address, telegramList.get(i).getAddress());
 			if (address == telegramList.get(i).getAddress()) return true;

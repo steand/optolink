@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015,  Stefan Andres.  All rights reserved.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the GNU Lesser General Public License
+ * (LGPL) version 3.0 which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl-3.0.html
+ *  
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *******************************************************************************/
 package de.myandres.optolink;
 
 import org.slf4j.Logger;
@@ -70,7 +83,7 @@ public class Telegram {
     
 	public void setAccess(String s) {
 		if (s==null) {
-			log.info("Access Methode not set - set to default: r"); 
+			log.debug("Access Methode not set - set to default: r"); 
 		    s="r";
 		}
 		switch (s.toLowerCase()) {
@@ -152,7 +165,7 @@ public class Telegram {
 	
 	public void setDivider(String divider) {
 		if (divider==null) {
-			log.info("divider not set - set to default: 1"); 
+			log.debug("divider not set - set to default: 1"); 
 		    this.divider=1;
 		} else {
 		  try {
