@@ -39,6 +39,7 @@ public class ComPort {
 
 		if (portIdentifier.isCurrentlyOwned()) {
 			log.error("TTY: {} in use.", this.port);
+			throw new IOException();
 		}
 		commPort = portIdentifier.open(this.getClass().getName(), timeout);
 		if (commPort instanceof SerialPort) {

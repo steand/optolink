@@ -26,8 +26,12 @@ public class Main {
             
             //Start TTY Handling for Optolink
             viessmann = new Viessmann(config);
+        }  catch (Exception e) {     	
+            log.error("TTY not init", e);
+             
+          }
             
-            
+         try {   
             
             OptolinkHandler oh = new OptolinkHandler(config, dataStore);
             SocketHandler sh = new SocketHandler(config, dataStore, viessmann);

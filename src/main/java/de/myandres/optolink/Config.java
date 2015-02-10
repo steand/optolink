@@ -43,6 +43,7 @@ public class Config {
 		InputSource inputSource = new InputSource(reader);
 
 		log.info("File {} open for parsing", fileName);
+		
 
 		// set ContentHandler
 		xmlReader.setContentHandler(new xHandler());
@@ -94,7 +95,7 @@ public class Config {
 
 	public String viewTelegramDefinition(int index) {
 		Telegram t = telegramList.get(index);
-		String s = String.format("%04X", t.getAddress()) + ":";
+		String s = String.format("%04X", t.getAddress()) + ":type=";
 		// OpenHAB Item Types
 		switch (t.getType()) {
 		case Telegram.BYTE:
@@ -119,12 +120,12 @@ public class Config {
 			s += "Switch";
 			break;
 		case Telegram.DATE:
-			s += "DateTime";
+			s += "Date";
 			break;
 		default:
 			s += "*unknown";
 		}
-		return s += "," + t.getAccessAsString() + "," + t.getName();
+		return s += ",access=" + t.getAccessAsString() + ",description=\"" + t.getName()+"\"";
 	}
 
 	// Setter/Getter
@@ -293,40 +294,40 @@ public class Config {
 
 		@Override
 		public void endPrefixMapping(String prefix) throws SAXException {
-			// TODO Auto-generated method stub
+			// Not use Auto-generated method stub
 
 		}
 
 		@Override
 		public void ignorableWhitespace(char[] ch, int start, int length)
 				throws SAXException {
-			// TODO Auto-generated method stub
+			// Not use  Auto-generated method stub
 
 		}
 
 		@Override
 		public void processingInstruction(String target, String data)
 				throws SAXException {
-			// TODO Auto-generated method stub
+			// Not use  Auto-generated method stub
 
 		}
 
 		@Override
 		public void setDocumentLocator(Locator locator) {
-			// TODO Auto-generated method stub
+			// Not use  Auto-generated method stub
 
 		}
 
 		@Override
 		public void skippedEntity(String name) throws SAXException {
-			// TODO Auto-generated method stub
+			// Not use  Auto-generated method stub
 
 		}
 
 		@Override
 		public void startPrefixMapping(String prefix, String uri)
 				throws SAXException {
-			// TODO Auto-generated method stub
+			// Not use  Auto-generated method stub
 
 		}
 

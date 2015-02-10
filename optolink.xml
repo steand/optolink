@@ -5,7 +5,7 @@
 	<ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
 	<port>12001</port>
 	<subscriberPort>12002</subscriberPort>
-	<interval>10</interval>                 <!-- Seconds to poll optolink -->
+	<interval>100</interval>                 <!-- Seconds to poll optolink -->
 
 	<!-- Addressen die von diesem "device" unterstützt werden -->
 
@@ -48,8 +48,8 @@
 	<telegram name='CollectorTemperature' access='r' address='6564' length='2' type='short' divider='10'/>
 	<telegram name='SolarBoilerTemperature' access='r' address='6566' length='2' type='short' divider='10'/>
 	<telegram name='SolarPump' access='r' address='6552' length='1' type='boolean' />
-	<telegram name='SolarPumpPower' access='r' address='6553' length='1' type='byte'/>
-	<telegram name='SolarLoadStatus' access='r' address='6551' length='1' type='boolean' />
+	<telegram name='SolarPumpPower' access='r' address='6553' type='byte'/>
+	<telegram name='SolarLoadStatus' access='r' address='6551' type='boolean' />
 	<telegram name='SolarHours' access='r' address='6568' type='ushort'/>
 	<telegram name='SolarPower' access='r' address='6560' type='uint'/>
 

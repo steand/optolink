@@ -35,8 +35,8 @@ public class Viessmann300 implements ViessmannProtocol {
 	        	log.debug("Session to optolink already opened");
 	        	return;
 	        }    
-            comPort.flush();                  // flash Input Buffer
             comPort.write(0x04);              // close communication, if open
+            comPort.flush();                  // flash Input Buffer        
             for (int i=0; i<5; i++) {         // try 5 times to sync 
                comPort.write(0x16);           // send Init
                comPort.write(0x00);
@@ -65,11 +65,9 @@ public class Viessmann300 implements ViessmannProtocol {
                 ret = comPort.read();
                 if (ret == 0x06) {               
         	      log.trace("[ACK] resived");
-                        if (comPort.read() == 0x05) {                // if  0x05 resived optolink waits for open
-                            log.debug("Session to optolink closed");
-                            isSession = false;
-                            return; // Close  OK
-                        }
+                  log.debug("Session to optolink closed");
+                  isSession = false;
+                  return; // Close  OK
                 }
 
                if (ret == 0x05) {                    // Session already closed (why, i don't now)
@@ -84,7 +82,7 @@ public class Viessmann300 implements ViessmannProtocol {
     public synchronized int getData (byte[] buffer, int address, int length) {
             byte[] lb = new byte[16];
             
-            log.debug("Try to get data from Optolink for address: {} ", address); 
+            log.debug(String.format("Try to get Data for address %#04X returned ", address)); 
             if (!isSession) {
 	        	log.error("Session Optolink not opened");
 	        	return -1;
@@ -112,7 +110,7 @@ public class Viessmann300 implements ViessmannProtocol {
             raddr = ((lb[2] & 0xFF) << 8) + ((int)lb[3] & 0xFF); // Address
             if (raddr != address) log.error(String.format("Adress (%#04X) expect, but: %#04X resived", address, raddr));
             for (int i=0;i<lb[4];i++) buffer[i] =lb[i+5];  // coppy Result 
-            log.debug("getData from Optolink for address {} returned ", address); 
+            log.debug(String.format("getData from Optolink for address %#04X returned: ", address)); 
             return (rlen-5); // buffer length 
     }
 

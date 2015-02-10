@@ -54,8 +54,7 @@ public class SocketHandler implements Runnable {
               }
 
               catch (Exception e) {
-      	        log.error("Connection on Socket {} rejected", config.getPort());
-    	        log.error("Diagnostic: {}", e.toString()); 
+      	        log.error("Connection on Socket {} rejected", config.getPort(), e);
             
               } finally {
                   if (socket != null)
@@ -86,14 +85,24 @@ public class SocketHandler implements Runnable {
         
         while(!exit) {
             String [] inStr = in.readLine().trim().split(" +");
-            switch (inStr[0].toLowerCase()) {
+            String command=inStr[0];
+            log.trace("Command): |{}|", command);
+            for (int i=1; i<inStr.length; i++) inStr[i-1]=inStr[i];
+            inStr[inStr.length-1]=null;
+            for (int i=0; i<inStr.length; i++)
+            log.trace("param[{}]: |{}|", i, inStr[i]);
+            switch (command.toLowerCase()) {
             
             case "sub" : subscribe(inStr) ; break;
             case "usub" : unsubscribe(inStr); break;
             case "list" : list(out); break;
-            case "get" : get(inStr[1]); break;
+            case "getall" : out.println(getall()); break;
+            case "get" : 
+            	out.println(getData(inStr)); 
+//            	getData(inStr[1]);
+            	break;
             case "set" : set(); break;
-            case "setint" : setInt(inStr[1]); break;
+            case "setint" : setInt(inStr[0]); break;
             case "exit" : exit=true; break;
             default: log.error("Unknown Client Command:", inStr[0]); 
             } 
@@ -103,6 +112,16 @@ public class SocketHandler implements Runnable {
 		
 	}
 
+
+	private String getall() {
+		String[] s = new String[30];
+    	for (int i=0; i<config.getTelegramListSize(); i++) {
+    		log.trace("getall: adr = {}", String.format("%04X",config.getTelegramByIndex(i).getAddress()));
+    		s[i] = String.format("%04X",config.getTelegramByIndex(i).getAddress());
+    	}
+       return getData(s);
+		
+	}
 
 	private void setInt(String interval) {
 		try {
@@ -118,10 +137,19 @@ public class SocketHandler implements Runnable {
 		
 	}
 
-	private void get(String inStr) {
-		viessmann.get(inStr);
-
+	private String getData(String[] address ) {
+		log.trace("Try to get Data for Addresses");
+		try {
+			  return viessmann.readData(address);		 
+			}
+			catch (Exception e) {
+				log.error("Error in get command",e);
+			}
+		
+		return "nix";
 	}
+	
+	
 
 	private void list(PrintStream out) {
 		
@@ -132,7 +160,7 @@ public class SocketHandler implements Runnable {
 	}
 
 	private void subscribe(String[] inStr) {
-		for (int i=1; i<inStr.length; i++)
+		for (int i=0; i<inStr.length-1; i++)
     	if (config.existTelegram(inStr[i])) {
     		dataStore.subscribe(inStr[i]);
     	} else {
@@ -141,6 +169,6 @@ public class SocketHandler implements Runnable {
 	}
 	
 private void unsubscribe(String[] inStr) {	
-		for (int i=1; i<inStr.length; i++) dataStore.unsubscribe(inStr[i]);	
+		for (int i=0; i<inStr.length-1; i++) dataStore.unsubscribe(inStr[i]);	
 	}
 }

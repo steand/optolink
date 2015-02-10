@@ -135,6 +135,10 @@ public class Telegram {
 				this.type = Telegram.UINT;
 				length=4;
 				break;
+			case "date":
+				this.type = Telegram.DATE;
+				length=8;
+				break;
 			default: {
 				log.error("Unknown Type: {}", type);
 				this.type = Telegram.DUMP;
