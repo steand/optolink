@@ -24,10 +24,10 @@ public class Viessmann300 implements ViessmannProtocol {
 
 	
 	Viessmann300(OptolinkInterface optolinkInterface) {
-		log.debug("Try to start Session for Protokoll: 300");
+		log.trace("Start Session for Protokoll '300' ....");
 		this.optolinkInterface = optolinkInterface;
 		startSession();
-		log.info("Start Session for Protokoll: 300");
+		log.trace("Start Session for Protokoll '300' started");
 	}
 
 	
@@ -39,7 +39,7 @@ public class Viessmann300 implements ViessmannProtocol {
             
             for (int i=0; i<2; i++) {
             
-            log.debug(String.format("Try to get Data for address %04X returned ", address)); 
+            log.debug(String.format("Get Data for address %04X .... ", address)); 
 
             // construct TxD
 
@@ -65,7 +65,7 @@ public class Viessmann300 implements ViessmannProtocol {
                returnAddress = ((localBuffer[2] & 0xFF) << 8) + ((int)localBuffer[3] & 0xFF); // Address
                if (returnAddress != address) log.error(String.format("Adress (%04X) expect, but: %04X resived", address, returnAddress));
                for (int j=0;j<localBuffer[4];j++) buffer[j] =localBuffer[j+5];  // copy Result 
-               log.debug(String.format("getData from Optolink for address %04X returned: ", address)); 
+               log.debug(String.format("Data for address %04X got ", address)); 
                return (returNumberOfBytes-5); // buffer length
              } }
             }
@@ -88,9 +88,10 @@ public class Viessmann300 implements ViessmannProtocol {
 	
     private synchronized void startSession() {
  
+    	    optolinkInterface.flush(); 
             optolinkInterface.write(0x04);              // close communication, if open
-            optolinkInterface.flush();                  // flash Input Buffer        
-            for (int i=0; i<5; i++) {         // try 5 times to sync 
+            optolinkInterface.read();                   // catch 0x15 or 0x05
+            for (int i=0; i<5; i++) {                   // try 5 times to sync 
                optolinkInterface.write(0x16);           // send Init
                optolinkInterface.write(0x00);
                optolinkInterface.write(0x00);
@@ -101,13 +102,14 @@ public class Viessmann300 implements ViessmannProtocol {
                }
                log.trace("Open Session to Optolink [ACK] failed");
             }
-            log.error("Can't open Session to Optolink");
+            log.error("!!! Trouble with communication to OptolinkInterface !!!" );
+            log.error("!!! Pleace check hardware !!!" );
     }
 
 
     // RxD Telegram
     private synchronized int resive(byte[] buffer) {
-            log.debug("Try to resive Data from OptolinkInterface");
+            log.debug("Get Data from OptolinkInterface ...");
             int ret=optolinkInterface.read();
             if (ret != 0x41) {
             	log.error(String.format("Start Byte (0x41) expect, but: %#02X", ret));
@@ -127,9 +129,9 @@ public class Viessmann300 implements ViessmannProtocol {
             returnChecksum = returnChecksum & 0xFF;         //expected checksum 8 low bit's .
             int bufferChecksum=optolinkInterface.read();    // read checksum 
             if (returnChecksum != bufferChecksum) {
-            	log.error(String.format("Checksumme (%#02X) expect, but: %#02X resived", returnChecksum, bufferChecksum));
+            	log.error(String.format("Checksumme (%#02X) expect, but %#02X resived", returnChecksum, bufferChecksum));
             }
-            log.debug("Data reseved from OptolinkInterface: [OK]");
+            log.debug("Data from OptolinkInterface got [OK]");
             if (log.isTraceEnabled()) {
             	// Dump Result if Trace is on
             	log.trace("Dump Data (No. decimal hexadcimal binary)");
@@ -148,7 +150,7 @@ public class Viessmann300 implements ViessmannProtocol {
     // TxD Telegram
     private synchronized boolean transmit(byte[] buffer, int len) {
     	
-    	    log.debug("Try to transmit Data to OptolinkInterface");
+    	    log.debug("Send Data to OptolinkInterface");
 
             // TxD build Checksum
             int checksum = len;
@@ -173,7 +175,7 @@ public class Viessmann300 implements ViessmannProtocol {
                     }
                     return false;
             }            
-            log.debug("Data transmit to OptolinkInterface: [OK]");
+            log.debug("Data to OptolinkInterface sended [OK]");
             return true;
     }
 

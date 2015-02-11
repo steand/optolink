@@ -19,13 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ViessmannHandler {
-	static Logger log = LoggerFactory.getLogger(OptolinkInterface.class);
+	static Logger log = LoggerFactory.getLogger(ViessmannHandler.class);
 	private ViessmannProtocol viessmannProtocol;
 	@SuppressWarnings("unused")
 	private OptolinkInterface optolinkInterface;
 
 	ViessmannHandler(String interfaceProtocol, OptolinkInterface optolinkInterface) throws Exception {
-		log.debug("Try to Init Viessmann Handler for Protokoll: {}", interfaceProtocol);
+		log.debug("Init Handler for Protokoll {} ...", interfaceProtocol);
 		switch (interfaceProtocol) {
 		case "300":
 			viessmannProtocol = new Viessmann300(optolinkInterface);
@@ -34,12 +34,12 @@ public class ViessmannHandler {
 			viessmannProtocol = new ViessmannKW(optolinkInterface);
 			break;
 		default:
-			log.error("Unknown Protokol for Optolink: {}", interfaceProtocol);
+			log.error("Unknown Protokol: {}", interfaceProtocol);
 			throw new RuntimeException();
 		}
-		log.trace("Viessmann Protokoll Handler for Class {} initalisiert:", viessmannProtocol.getClass().getName());
+		log.trace("Handler for Class {} initalisiert", viessmannProtocol.getClass().getName());
 
-		log.info("Viessmann Protokoll Handler for Protocol {} initalisiert:", interfaceProtocol);
+		log.info("Handler for Protocol {} initalisiert", interfaceProtocol);
 	}
 	
 	
@@ -55,11 +55,11 @@ public class ViessmannHandler {
 	
 	public synchronized String readTelegramValue(Telegram t)  {
 		byte [] buffer = new byte[16];
-		long l=0;
-		int len=viessmannProtocol.getData(buffer,t.getAddress(), t.getLength());
+		long result=0;
+		int resultLength=viessmannProtocol.getData(buffer,t.getAddress(), t.getLength());
 		if (log.isTraceEnabled()) {
-	    	log.trace("Number of Bytes: {}", len);
-	    	for (int i=0; i<len; i++) log.trace("[{}] {} ",i,buffer[i]);
+	    	log.trace("Number of Bytes: {}", resultLength);
+	    	for (int i=0; i<resultLength; i++) log.trace("[{}] {} ",i,buffer[i]);
 		}
 		switch (t.getType()) {
 		case Telegram.BOOLEAN:
@@ -70,27 +70,27 @@ public class ViessmannHandler {
 			return String.format("value=\"%02x.%02x.%02x%02x %02x:%02x:%02x\"",
 					buffer[3],buffer[2],buffer[0],buffer[1],buffer[5],buffer[6],buffer[7])	;
 		case Telegram.BYTE:
-             l = buffer[0];
+             result = buffer[0];
              break;
 		case Telegram.UBYTE:
-			  l = 0xFF & buffer[0];
+			  result = 0xFF & buffer[0];
 			break;		
 		case Telegram.SHORT:
-			 l = ((long)(buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
+			 result = ((long)(buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
 			break;
 		case Telegram.USHORT:
-			l = ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
+			result = ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
 			break;
 		case Telegram.INT:
-			l = ((long)(buffer[3]))*0x1000000  + ((long)(0xFF & buffer[2]))*0x10000  + ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
+			result = ((long)(buffer[3]))*0x1000000  + ((long)(0xFF & buffer[2]))*0x10000  + ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
 			break;
 		case Telegram.UINT:
-			l = ((long)(0xFF & buffer[3]))*0x1000000  + ((long)(0xFF & buffer[2]))*0x10000  + ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
+			result = ((long)(0xFF & buffer[3]))*0x1000000  + ((long)(0xFF & buffer[2]))*0x10000  + ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
 			break;
 		}
 		if (t.getDivider() !=1 ) 
-			return String.format(Locale.US,"value=%.2f", (float)l / t.getDivider());
-		else return String.format("value=%d", l);
+			return String.format(Locale.US,"value=%.2f", (float)result / t.getDivider());
+		else return String.format("value=%d", result);
 		
 	} 
 	

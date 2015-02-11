@@ -25,16 +25,36 @@ public class ViessmannKW implements ViessmannProtocol {
 
 
 	ViessmannKW(OptolinkInterface optolinkInterface) {
+		log.trace("Start Session for Protokoll 'KW' ....");
 		this.optolinkInterface = optolinkInterface;
-		log.error("Init Viessmann Optolink Interface, Protokoll KW not implemented jet");
-
+		log.trace("Start Session for Protokoll 'KW' started");
 	}
 	
 
 	@Override
 	public int getData(byte[] buffer, int address, int length) {
-		// TODO Auto-generated method stub
-		return 0;
+ 
+		int j=0;
+		optolinkInterface.flush();
+        while (optolinkInterface.read() != 0x05 ) { // Wait for 0x05
+        	if (j++ > 10) {
+        		log.error("Can't send Data to OptolinkInterface, missing 0x05");
+                log.error("!!!!!!!!!!!!!!!! Trouble with communication to OptolinkInterface !!!!!!!!" );
+                log.error("!!!!!!!!!!!!!!!! Pleace check hardware !!!!!!!!" );
+        		return -1;
+        	}
+        
+        }    
+        optolinkInterface.write(0x01); // Anwser to 0x05
+        optolinkInterface.write(0xF7); // Read Data
+        optolinkInterface.write((byte)(address >> 8));   // upper Byte of address
+        optolinkInterface.write((byte)(address & 0xff)); // lower Byte of address
+        optolinkInterface.write((byte)length);           // number of expected bytes
+        
+        for (int i=0; i<length; i++) {
+        	buffer[i] = (byte) optolinkInterface.read();
+        } 
+        return length;
 	}
 
 
@@ -43,6 +63,5 @@ public class ViessmannKW implements ViessmannProtocol {
 		// TODO Auto-generated method stub
 		
 	}
-
 
 }

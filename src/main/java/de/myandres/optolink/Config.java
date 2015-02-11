@@ -38,8 +38,8 @@ public class Config {
 
 	private String tty;
 	private int ttyTimeOut = 2000;      //default
-	private int port = 12001;           // default
-	private int subscriberPort = 12002; // default
+	private int port = 31113;           // default: unassigned Port. See: http://www.iana.org
+	private int subscriberPort = 31114; // default: unassigned Port. See: http://www.iana.org
 	private int interval = 5 * 60;      // 5 Minutes
 	private String deviceType;
 	private String protocol;

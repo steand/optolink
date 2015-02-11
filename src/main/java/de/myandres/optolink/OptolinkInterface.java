@@ -40,11 +40,11 @@ public class OptolinkInterface {
 
 		this.device = device;
 
-		log.debug("Try to open TTY: {}", this.device);
+		log.debug("Open TTY {} ...", this.device);
 		portIdentifier = CommPortIdentifier.getPortIdentifier(this.device);
 
 		if (portIdentifier.isCurrentlyOwned()) {
-			log.error("TTY: {} in use.", this.device);
+			log.error("TTY {} in use.", this.device);
 			throw new IOException();
 		}
 		commPort = portIdentifier.open(this.getClass().getName(), timeout);
@@ -57,13 +57,13 @@ public class OptolinkInterface {
 			output = serialPort.getOutputStream();
 			commPort.enableReceiveTimeout(timeout); // Reading Time-Out
 		}
-		log.debug("TTY: {} opened", this.device);
+		log.debug("TTY {} opened", this.device);
 	}
 
 	public synchronized void close() {
-		log.debug("Try to close TTY", device);
+		log.debug("Close TTY {} ....", device);
 		commPort.close();
-		log.debug("TTY: {} closed", device);
+		log.debug("TTY {} closed", device);
 	}
 
 	public synchronized void flush() {
@@ -82,7 +82,7 @@ public class OptolinkInterface {
 		try {
 			output.write((byte) data);
 		} catch (IOException e) {
-			log.error("Can't write Data to TTY: {}", device, e);
+			log.error("Can't write Data to TTY {}", device, e);
 		}
 	}
 
@@ -92,11 +92,11 @@ public class OptolinkInterface {
 		try {
 			data = input.read();
 			log.trace("RxD: {}", String.format("%02X", data));
+			if (data == -1) log.trace("Timeout from TTY {}", device);
 			return data;
 		} catch (Exception e) {
-			log.error("Can't read Data from TTY: {}", device, e);
+			log.error("Can't read Data from TTY {}", device, e);
 		}
-
 		return -1; // Ups
 
 	}

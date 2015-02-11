@@ -3,8 +3,8 @@
 
 	<tty>/dev/ttyAMA0</tty>
 	<ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
-	<port>12001</port>
-	<subscriberPort>12002</subscriberPort>
+	<port>31113</port>                      <!-- unassigned Port. See: http://www.iana.org -->
+	<subscriberPort>31114</subscriberPort>
 	<interval>100</interval>                 <!-- Seconds to poll optolink -->
 
 	<!-- Addressen die von diesem "device" unterstützt werden -->

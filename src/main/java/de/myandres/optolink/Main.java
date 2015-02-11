@@ -42,8 +42,8 @@ public class Main {
             dataStore.setInterval(config.getInterval());
             
             //Start TTY Handling for Optolink
-//            optolinkInterface = new OptolinkInterface(config.getTTY(),config.getTtyTimeOut());
-            optolinkInterface = new OptolinkInterface(config.getTTY(),1000*60);
+            optolinkInterface = new OptolinkInterface(config.getTTY(),config.getTtyTimeOut());
+  
             
             //Start ViessmannHandler
             
