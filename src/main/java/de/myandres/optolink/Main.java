@@ -53,29 +53,43 @@ public class Main {
             
             
         }  catch (Exception e) {     	
-            log.error("SomeThing wrong not init", e);
-             
-          }
+            log.error("Something is wrong not init", e);
+            viessmannHandler.close();
+            optolinkInterface.close();
+            System.exit(1);
+        }           
+	    
+	    // Install catcher for Kill Signal 
+            Runtime.getRuntime().addShutdownHook(new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    viessmannHandler.close();
+                    optolinkInterface.close();
+                    log.info("Programm normal terminated by Signal (Kill)");
+                }
+            });
+
             
          try {   
+     
+            // Run Subscriber Thread
+            SubscriberThread subscriberThread = new SubscriberThread(config, dataStore, viessmannHandler);
+            Thread subThread = new Thread(subscriberThread);
+            subThread.setName("Subscriber");
+            subThread.start();
+            
             // Run SocketHandler
-            SocketThread sockedThread = new SocketThread(config, dataStore, viessmannHandler);
-            new Thread(sockedThread).start();
-            
-            
- //          new Thread(oh).start();
+            SocketHandler socketHandler = new SocketHandler(config, dataStore, viessmannHandler);
+            socketHandler.start();
            
             
-       
-            
-            log.debug("Programm normal ended");
-        }  catch (Exception e) {     	
-           log.error("Programm abnormal terminated.");
-           log.error("Diagnostic: {}", e.toString());       
-         }
-	    
-		
 
+        }  catch (Exception e) {     	
+           log.error("Programm abnormal terminated.", e);     
+        }
+	    
 	}
 
 }

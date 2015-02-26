@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <optolink device="2033" name="300P" protocol="300">
 
-	<tty>COM1</tty>
+	<tty>/dev/ttyAMA0</tty>
 	<ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
-	<port>12001</port>
-	<subscriberPort>12002</subscriberPort>
-	<interval>10</interval>                 <!-- Seconds to poll optolink -->
+	<port>31113</port>                      <!-- unassigned Port. See: http://www.iana.org -->
+	<subscriberPort>31114</subscriberPort>
+	<interval>100</interval>                 <!-- Seconds to poll optolink -->
 
 	<!-- Addressen die von diesem "device" unterstützt werden -->
 
@@ -54,7 +54,6 @@
 	<telegram name='SolarPower' access='r' address='6560' type='uint'/>
 
 	<!--# Sonstiges -->
-
 
 
 

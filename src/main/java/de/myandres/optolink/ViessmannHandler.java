@@ -42,6 +42,9 @@ public class ViessmannHandler {
 		log.info("Handler for Protocol {} initalisiert", interfaceProtocol);
 	}
 	
+	public synchronized void close() {
+		viessmannProtocol.close();
+	}
 	
 	
 	public synchronized String setTelegramValue(Telegram t, String value) {
@@ -89,8 +92,8 @@ public class ViessmannHandler {
 			break;
 		}
 		if (t.getDivider() !=1 ) 
-			return String.format(Locale.US,"value=%.2f", (float)result / t.getDivider());
-		else return String.format("value=%d", result);
+			return String.format(Locale.US,"%.2f", (float)result / t.getDivider());
+		else return String.format("%d", result);
 		
 	} 
 	

@@ -257,9 +257,10 @@ public class Config {
 				break;
 			case "root.optolink.interval":
 				setInterval(s);
-				
+				break;			
 			case "root.optolink.subscriberPort":
 				setSubscriberPort(s);
+				break;
 			}
 
 		} 

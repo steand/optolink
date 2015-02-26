@@ -64,4 +64,11 @@ public class ViessmannKW implements ViessmannProtocol {
 		
 	}
 
+
+	@Override
+	public void close() {
+		// nothing to do
+		
+	}
+
 }

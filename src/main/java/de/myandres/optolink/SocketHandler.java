@@ -28,31 +28,25 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SocketThread implements Runnable {
+public class SocketHandler  {
 
-	static Logger log = LoggerFactory.getLogger(SocketThread.class);
+	static Logger log = LoggerFactory.getLogger(SocketHandler.class);
 
 	private Config config;
 	private DataStore dataStore;
 	private ServerSocket server;
 	private ViessmannHandler viessmannHandler;
 
-	SocketThread(Config config, DataStore dataStore, ViessmannHandler viessmannHandler) {
+	SocketHandler(Config config, DataStore dataStore, ViessmannHandler viessmannHandler) throws Exception {
 		this.config = config;
 		this.dataStore = dataStore;
 		this.viessmannHandler = viessmannHandler;
-		
-		try {
-			server = new ServerSocket(config.getPort());
 
-		} catch (IOException e) {
-			log.error("Can't init Socket {}", config.getPort());
-			log.error("Diagnostic: {}", e.toString());
-		}
+		server = new ServerSocket(config.getPort());
+
 	}
 
-	@Override
-      public void run() {
+      public void start() {
     	  
     	  // Wait connection
   	  
@@ -69,19 +63,8 @@ public class SocketThread implements Runnable {
               catch (Exception e) {
       	        log.error("Connection on Socket {} rejected", config.getPort(), e);
             
-              } finally {
-                  if (socket != null)
-                      try {
-                          socket.close();
-                          log.info("Connection (port: {}) closed", config.getPort());
-                      } catch (IOException e) {
-               	        log.error("Closing Port {}", config.getPort());
-            	        log.error("Diagnostic: {}", e.toString()); 
-         
-                      }
-              }
+              } 
           } 
-  	
          }
 	
 	
@@ -91,8 +74,6 @@ public class SocketThread implements Runnable {
         PrintStream out = new PrintStream(socket.getOutputStream());
 
         boolean exit=false;
-        
-        System.out.println("open");
         
         out.println("Helo from viessmann");
         
@@ -161,7 +142,7 @@ public class SocketThread implements Runnable {
 		log.trace("Try to get Data for Addresses");
 		for (int i=0; ((i<address.length) && (address[i] != null)); i++) {
 		try {
-			  returnStr+= viessmannHandler.readTelegramValue(config.getTelegram(address[i])) + "\n";		 
+			  returnStr+= address[i] + ":" + viessmannHandler.readTelegramValue(config.getTelegram(address[i])) + "\n";		 
 			}
 			catch (Exception e) {
 				log.error("Error in get command",e);
@@ -186,7 +167,7 @@ public class SocketThread implements Runnable {
     	if (config.existTelegram(inStr[i])) {
     		dataStore.subscribe(inStr[i]);
     	} else {
-    	     log.error("Can't subscribe address: {} - address not exist", inStr[1]);
+    	     log.error("Can't subscribe address: {} - address not exist", inStr[i]);
     	}		
 	}
 	

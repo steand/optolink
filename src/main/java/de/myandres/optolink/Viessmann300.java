@@ -81,6 +81,11 @@ public class Viessmann300 implements ViessmannProtocol {
 		
 	}
 
+	@Override
+	public void close() {
+		stopSession();
+		
+	}
 
 	// Private Methods
 	
@@ -106,6 +111,25 @@ public class Viessmann300 implements ViessmannProtocol {
             log.error("!!! Pleace check hardware !!!" );
     }
 
+    public synchronized void stopSession() {
+        int ret;
+        log.debug("Try to Close Optolink Session");
+        for (int i=0; i<5; i++) {             // try 5 times to close
+        	optolinkInterface.write(0x04);              //  close communication
+            ret = optolinkInterface.read();
+            if (ret == 0x06) {
+                  log.trace("[ACK] resived");
+              log.debug("Session to optolink closed");
+              return; // Close  OK
+            }
+
+           if (ret == 0x05) {                    // Session already closed (why, i don't now)
+                   log.debug("Session to optolink already closed");
+                   return; // Close  OK
+           }
+           log.error("Closing session to optolink failed");
+        }
+}
 
     // RxD Telegram
     private synchronized int resive(byte[] buffer) {

@@ -17,6 +17,7 @@ public interface ViessmannProtocol {
 	
 	public int getData(byte[] buffer, int address, int length);
 	public void setData(byte[] buffer, int address, int length);
+	void close();
 
 
 }
