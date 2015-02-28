@@ -74,11 +74,7 @@ public class Main {
             
          try {   
      
-            // Run Subscriber Thread
-            SubscriberThread subscriberThread = new SubscriberThread(config, dataStore, viessmannHandler);
-            Thread subThread = new Thread(subscriberThread);
-            subThread.setName("Subscriber");
-            subThread.start();
+           
             
             // Run SocketHandler
             SocketHandler socketHandler = new SocketHandler(config, dataStore, viessmannHandler);

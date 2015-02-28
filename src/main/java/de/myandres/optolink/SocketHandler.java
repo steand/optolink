@@ -19,7 +19,6 @@ package de.myandres.optolink;
  */
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -36,14 +35,20 @@ public class SocketHandler  {
 	private DataStore dataStore;
 	private ServerSocket server;
 	private ViessmannHandler viessmannHandler;
+	private SubscriberThread subscriberThread;
+	private PrintStream out;
+	
+	private Thread subThread;
 
 	SocketHandler(Config config, DataStore dataStore, ViessmannHandler viessmannHandler) throws Exception {
+		
+		
 		this.config = config;
 		this.dataStore = dataStore;
 		this.viessmannHandler = viessmannHandler;
 
 		server = new ServerSocket(config.getPort());
-
+		subscriberThread = new SubscriberThread(config, dataStore, viessmannHandler);
 	}
 
       public void start() {
@@ -58,11 +63,12 @@ public class SocketHandler  {
                   log.info("Connection on port {} accept. Remote host {}", config.getPort(), socket.getRemoteSocketAddress());
                   
                   open(socket);
+                  subThread.interrupt();
               }
 
               catch (Exception e) {
-      	        log.error("Connection on Socket {} rejected", config.getPort(), e);
-            
+      	        log.info("Connection on Socket {} rejected or closed by client", config.getPort());
+      	        subThread.interrupt();          
               } 
           } 
          }
@@ -71,30 +77,35 @@ public class SocketHandler  {
 	private void open(Socket socket) throws Exception {
 		
 		BufferedReader in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintStream out = new PrintStream(socket.getOutputStream());
+        out = new PrintStream(socket.getOutputStream());
 
         boolean exit=false;
         
-        out.println("Helo from viessmann");
+        out.println("#Helo from viessmann");
+        
+       subscriberThread.setOutputStream(out);
+       subThread = new Thread(subscriberThread);
+       subThread.setName("Subscriber");
+ 
+
+        subThread.start();
         
         while(!exit) {
             String [] inStr = in.readLine().trim().split(" +");
             String command=inStr[0];
-            log.trace("Command): |{}|", command);
             for (int i=1; i<inStr.length; i++) inStr[i-1]=inStr[i];
             inStr[inStr.length-1]=null;
-            for (int i=0; i<inStr.length; i++)
-            log.trace("param[{}]: |{}|", i, inStr[i]);
+            if (log.isTraceEnabled()) {
+                 log.trace("Command): |{}|", command);
+                 for (int i=0; i<inStr.length; i++) log.trace("param[{}]: |{}|", i, inStr[i]);
+            }
             switch (command.toLowerCase()) {
             
             case "sub" : subscribe(inStr) ; break;
             case "usub" : unsubscribe(inStr); break;
-            case "list" : list(out); break;
-            case "getall" : out.println(getall()); break;
-            case "get" : 
-            	out.println(getData(inStr)); 
-//            	getData(inStr[1]);
-            	break;
+            case "list" : list(); break;
+            case "getall" : getall(); break;
+            case "get" : getData(inStr); break;
             case "set" : set(); break;
             case "testme" : testMe(); break;
             case "setint" : setInt(inStr[0]); break;
@@ -103,7 +114,7 @@ public class SocketHandler  {
             } 
         } 
         
-        out.println("By from viessmann");
+        out.println("#Bye from viessmann");
 		
 	}
 
@@ -113,14 +124,19 @@ public class SocketHandler  {
 		
 	}
 
-	private String getall() {
-		String[] s = new String[30];
+	private void getall() {
+		log.trace("Try to get Data for all Addresses");
+		Telegram telegram;
     	for (int i=0; i<config.getTelegramListSize(); i++) {
-    		log.trace("getall: adr = {}", String.format("%04X",config.getTelegramByIndex(i).getAddress()));
-    		s[i] = String.format("%04X",config.getTelegramByIndex(i).getAddress());
+    		try {
+    		 telegram = config.getTelegramByIndex(i);	
+   			 out.println("@" + telegram.getAddressAsString() + 
+   					     ":" + viessmannHandler.readTelegramValue(telegram));		 
+   			}
+   			catch (Exception e) {
+   				log.error("Error in get command",e);
+   			}
     	}
-       return getData(s);
-		
 	}
 
 	private void setInt(String interval) {
@@ -133,31 +149,34 @@ public class SocketHandler  {
 
 	private void set() {
 		// TODO Auto-generated method stub
+		out.println("set() not implemented jet");
 		log.info("set() not implemented jet");
 		
 	}
 
-	private String getData(String[] address ) {
-		String returnStr="";
+	private void getData(String[] address ) {
 		log.trace("Try to get Data for Addresses");
 		for (int i=0; ((i<address.length) && (address[i] != null)); i++) {
 		try {
-			  returnStr+= address[i] + ":" + viessmannHandler.readTelegramValue(config.getTelegram(address[i])) + "\n";		 
+			if (config.existTelegram(address[i])) {
+			 out.println("@" + address[i] + 
+					     ":" + viessmannHandler.readTelegramValue(config.getTelegram(address[i])));	
+			} else {
+		   	     log.error("Can't get data for address: {} - address not exist", address[i]);
+			}
 			}
 			catch (Exception e) {
-				log.error("Error in get command",e);
+				log.error("Error in getData command",e);
 			}
 		}
-		
-		return returnStr;
 	}
 	
 	
 
-	private void list(PrintStream out) {
+	private void list() {
 		
     	for (int i=0; i<config.getTelegramListSize(); i++) {
-    		out.println(config.viewTelegramDefinition(i));
+    		out.println("%"+config.viewTelegramDefinition(i));
     	}
 
 	}
@@ -169,9 +188,17 @@ public class SocketHandler  {
     	} else {
     	     log.error("Can't subscribe address: {} - address not exist", inStr[i]);
     	}		
+		getData(inStr);
 	}
 	
 private void unsubscribe(String[] inStr) {	
-		for (int i=0; i<inStr.length-1; i++) dataStore.unsubscribe(inStr[i]);	
+	    if (inStr[0].toLowerCase().contains("all")) {
+	    	for (int i=0; i<dataStore.getSize(); i++) {
+	    		dataStore.unsubscribe(dataStore.getAddress(i));
+	    	}
+	    	
+	    } else {
+		   for (int i=0; i<inStr.length-1; i++) dataStore.unsubscribe(inStr[i]);
+	    }
 	}
 }

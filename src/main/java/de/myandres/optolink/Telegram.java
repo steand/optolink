@@ -216,6 +216,11 @@ public class Telegram {
 		return address;
 	}
 	
+	public String getAddressAsString() {
+		return String.format("%04X", address);
+	}
+	
+	
 	public int getLength() {
 		return length;
 	}

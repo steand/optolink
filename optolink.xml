@@ -4,54 +4,53 @@
 	<tty>/dev/ttyAMA0</tty>
 	<ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
 	<port>31113</port>                      <!-- unassigned Port. See: http://www.iana.org -->
-	<subscriberPort>31114</subscriberPort>
-	<interval>100</interval>                 <!-- Seconds to poll optolink -->
+	<interval>30</interval>                 <!-- Seconds to poll optolink -->
 
 	<!-- Addressen die von diesem "device" unterstützt werden -->
 
-	<telegram name="deviceId" access='r' address="00F8" type="short" />
-	<telegram name='SystemTime' access='r' address='088E' type='date' />
-	<telegram name='OutsideTemperature' access='r' address='0800' type='short' divider='10'/>
+	<telegram name="Heating.deviceId" access='r' address="00F8" type="short" />
+	<telegram name='Heating.SystemTime' access='r' address='088E' type='date' />
+	<telegram name='Heating.OutsideTemperature' access='r' address='0800' type='short' divider='10'/>
 	
-	<!--# Puffer-Boiler -->
+	<!--# Puffer-StorageTank -->
 
-	<telegram name='HotWaterTemperature' access='r' address='0806' type='short' divider='10'/>
-	<telegram name='BoilerTemperatureUp' access='r' address='0810' type='short' divider='10'/>
-	<telegram name='BoilerTemperatureDown' access='r' address='0804' type='short' divider='10'/>
-	<telegram name='HotWaterPump' access='r' address='0846' type='boolean' />
+	<telegram name='StorageTank.HotWaterTemperature' access='r' address='0806' type='short' divider='10'/>
+	<telegram name='StorageTank.TemperatureUp' access='r' address='0810' type='short' divider='10'/>
+	<telegram name='StorageTank.TemperatureDown' access='r' address='0804' type='short' divider='10'/>
+	<telegram name='StorageTank.HotWaterPump' access='r' address='0846' type='boolean' />
 
 	<!--# Kessel -->
-	<telegram name='KesselTemperature' access='r' address='A202' type='short' divider='100'/>
-	<telegram name='BrennerPower' access='r' address='A305' type='ubyte' divider='2'/>
+	<telegram name='Furnace.Temperature' access='r' address='A202' type='short' divider='100'/>
+	<telegram name='Burner.Power' access='r' address='A305' type='ubyte' divider='2'/>
 
 	<!-- Brennerstatus ist noch nicht klar Addresse noch gesucht -->
 	
-	<telegram name='BrennerStatus' access='r' address='0962' type='short' />
-	<telegram name='BrennerStarts' access='r' address='088A' type='ushort'/>
-	<telegram name='BrennerHours' access='r' address='08A7' type='uint' divider='3600'/>
-	<telegram name='PelletVerbrauch' access='r' address='08B0' type='uint' divider='1000'/>
-	<telegram name='BoilerPump' access='r' address='0845' type='boolean' />
+	<telegram name='Burner.Status' access='r' address='0962' type='short' />
+	<telegram name='Burner.Starts' access='r' address='088A' type='ushort'/>
+	<telegram name='Burner.Hours' access='r' address='08A7' type='uint' divider='3600'/>
+	<telegram name='Burner.Consumtion.Pellet' access='r' address='08B0' type='uint' divider='1000'/>
+	<telegram name='StorageTank.LoadPump' access='r' address='0845' type='boolean' />
 
 	<!--# Heizkreis 1 -->
-	<telegram name='M1FlowTemperature' access='r' address='2900' type='short' divider='10'/>
-	<telegram name='M1Pump' access='r' address='2906' type='boolean' />
-	<telegram name='M1Gradient' access='r' address='2305' type='byte' divider='10'/>
-	<telegram name='M1Niveau' access='r' address='2304' type='byte'/>
+	<telegram name='Circuit.M1.FlowTemperature' access='r' address='2900' type='short' divider='10'/>
+	<telegram name='Circuit.M1.Pump' access='r' address='2906' type='boolean' />
+	<telegram name='Circuit.M1.Gradient' access='r' address='2305' type='byte' divider='10'/>
+	<telegram name='Circuit.M1.Niveau' access='r' address='2304' type='byte'/>
 	
 	<!--# Heizkreis 2 -->
-	<telegram name='M2FlowTemperature' access='r' address='3900' type='short' divider='10'/>
-	<telegram name='M2Pump' access='r' address='3906' type='boolean' />
-	<telegram name='M2Gradient' access='r' address='3305' type='byte' divider='10'/>
-	<telegram name='M2Niveau' access='r' address='3304' type='byte'/>
+	<telegram name='Circuit.M2.FlowTemperature' access='r' address='3900' type='short' divider='10'/>
+	<telegram name='Circuit.M2.Pump' access='r' address='3906' type='boolean' />
+	<telegram name='Circuit.M2.Gradient' access='r' address='3305' type='byte' divider='10'/>
+	<telegram name='Circuit.M2.Niveau' access='r' address='3304' type='byte'/>
 
 	<!--# Solaranlage # Muss noch ueberprueft werden wenn Sonne scheint -->
-	<telegram name='CollectorTemperature' access='r' address='6564' length='2' type='short' divider='10'/>
-	<telegram name='SolarBoilerTemperature' access='r' address='6566' length='2' type='short' divider='10'/>
-	<telegram name='SolarPump' access='r' address='6552' length='1' type='boolean' />
-	<telegram name='SolarPumpPower' access='r' address='6553' type='byte'/>
-	<telegram name='SolarLoadStatus' access='r' address='6551' type='boolean' />
-	<telegram name='SolarHours' access='r' address='6568' type='ushort'/>
-	<telegram name='SolarPower' access='r' address='6560' type='uint'/>
+	<telegram name='Solar.CollectorTemperature' access='r' address='6564' length='2' type='short' divider='10'/>
+	<telegram name='Solar.StorageTankTemperature' access='r' address='6566' length='2' type='short' divider='10'/>
+	<telegram name='Solar.Pump' access='r' address='6552' length='1' type='boolean' />
+	<telegram name='Solar.PumpPower' access='r' address='6553' type='byte'/>
+	<telegram name='Solar.LoadStatus' access='r' address='6551' type='boolean' />
+	<telegram name='Solar.Hours' access='r' address='6568' type='ushort'/>
+	<telegram name='Solar.Power' access='r' address='6560' type='uint'/>
 
 	<!--# Sonstiges -->
 
