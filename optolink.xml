@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Mapping for vitotronic/optoling addresses to openhab thinks.
+Mapping for vitotronic/optolink addresses to openhab things.
 
 type = *none
      -    will not send to openhab but it is posible to ask for this ID on the interface.
