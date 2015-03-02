@@ -13,6 +13,8 @@
  *******************************************************************************/
 package de.myandres.optolink;
 
+import java.awt.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +24,9 @@ public class Main {
     
     // Central Classes, singular only!!
     static Config config;
-    static DataStore dataStore;
     static ViessmannHandler viessmannHandler;
     static OptolinkInterface optolinkInterface;
-    
-    
+ 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
@@ -38,16 +38,19 @@ public class Main {
             // Central Thread Data
 //            config = new Config("src/main/resources/optolink.xml");
             config = new Config("optolink.xml");
-            dataStore = new DataStore();
-            dataStore.setInterval(config.getInterval());
+
+            
+            
+//            dataStore = new DataStore();
+//            dataStore.setInterval(config.getInterval());
             
             //Start TTY Handling for Optolink
-            optolinkInterface = new OptolinkInterface(config.getTTY(),config.getTtyTimeOut());
+             optolinkInterface = new OptolinkInterface(config.getTTY(),config.getTtyTimeOut());
   
             
             //Start ViessmannHandler
             
-            viessmannHandler = new ViessmannHandler(config.getProtocol(),optolinkInterface);
+             viessmannHandler = new ViessmannHandler(config.getProtocol(),optolinkInterface);
             
             
             
@@ -77,7 +80,7 @@ public class Main {
            
             
             // Run SocketHandler
-            SocketHandler socketHandler = new SocketHandler(config, dataStore, viessmannHandler);
+            SocketHandler socketHandler = new SocketHandler(config, viessmannHandler);
             socketHandler.start();
            
             

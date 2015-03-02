@@ -36,17 +36,18 @@ public class Config {
 
 	static Logger log = LoggerFactory.getLogger(Config.class);
 
+	private String adapterID="TEST"; 
 	private String tty;
 	private int ttyTimeOut = 2000;      //default
 	private int port = 31113;           // default: unassigned Port. See: http://www.iana.org
-	private int subscriberPort = 31114; // default: unassigned Port. See: http://www.iana.org
-	private int interval = 5 * 60;      // 5 Minutes
 	private String deviceType;
 	private String protocol;
-	private List<Telegram> telegramList;
+	private List<Thing> thingList;
+
+
 
 	Config(String fileName) throws Exception {
-		telegramList = new ArrayList<Telegram>();
+		thingList = new ArrayList<Thing>();
 		// create XMLReader
 		XMLReader xmlReader = XMLReaderFactory.createXMLReader();
 
@@ -64,85 +65,38 @@ public class Config {
 		// start parser
 		log.debug("Start parsing");
 		xmlReader.parse(inputSource);
-		log.info("{} Telegram's are parsed", telegramList.size());
+		log.info("{} Telegram's are parsed", thingList.size());
+	}
+	
+	
+	public List<Thing> getThingList() {
+		return thingList;
 	}
 
-	private void addTelegram(Telegram telegram) {
-		Telegram t = new Telegram();
-		t = telegram;
-		t.setIndex(telegramList.size());
-		telegramList.add(new Telegram(t));
+	public void addThing(Thing thing) {
+		log.trace("Add thing id: {}", thing.getId());
+		thingList.add(new Thing(thing));
 	}
 
-	public Telegram getTelegram(int address) {
-		for (int i = 0; i < telegramList.size(); i++) {
-			if (address == telegramList.get(i).getAddress())
-				return telegramList.get(i);
+	public Thing getThing(String id) {
+		log.trace("get thing id: {}", id);
+		for (int i = 0; i < thingList.size(); i++) {
+			if (thingList.get(i).getId().equals(id))  return thingList.get(i);
 		}
+		log.error("Add thing id: {} not found", id);
 		return null;
 	}
+	
 
-	public Telegram getTelegram(String address) {
-		try {
-			int addr = Integer.parseInt(address, 16);
-			return getTelegram(addr);
-		} catch (NumberFormatException e) {
-			log.error("Invalid  Address format: {}", address);
-			return null;
-		}
+	private void setAdapterID(String s) {
+		adapterID = s;
+		log.info("Set adapterID: {}", adapterID);
 	}
 
-	public int getTelegramListSize() {
-		return telegramList.size();
+	public String getAdapterID() {
+		return adapterID;
 	}
-
-	public Telegram getTelegramByIndex(int index) {
-		try {
-			return telegramList.get(index);
-		} catch (IndexOutOfBoundsException e) {
-			log.error("Invalid  Index ({}) in TelegramList", index);
-			return null;
-		}
-
-	}
-
-	public String viewTelegramDefinition(int index) {
-		Telegram t = telegramList.get(index);
-		String s = String.format("%04X", t.getAddress()) + ":type=";
-		// OpenHAB Item Types
-		switch (t.getType()) {
-		case Telegram.BYTE:
-			s += "Number";
-			break;
-		case Telegram.UBYTE:
-			s += "Number";
-			break;		
-		case Telegram.SHORT:
-			s += "Number";
-			break;
-		case Telegram.USHORT:
-			s += "Number";
-			break;
-		case Telegram.INT:
-			s += "Number";
-			break;
-		case Telegram.UINT:
-			s += "Number";
-			break;
-		case Telegram.BOOLEAN:
-			s += "Switch";
-			break;
-		case Telegram.DATE:
-			s += "Date";
-			break;
-		default:
-			s += "*unknown";
-		}
-		return s += ",access=" + t.getAccessAsString() + ",description=\"" + t.getName()+"\"";
-	}
-
-	// Setter/Getter
-
+	
 	private void setTTY(String s) {
 		tty = s;
 		log.info("Set tty: {}", tty);
@@ -165,18 +119,6 @@ public class Config {
 		return port;
 	}
 
-	private void setInterval(String s) {
-		try {
-			interval = Integer.parseInt(s);
-		} catch (NumberFormatException e) {
-			log.error("Wrong Format for Interval: {}", s);
-		}
-		log.info("Set polling interval: {} Seconds", interval);
-	}
-
-	public int getInterval() {
-		return interval;
-	}
 	
 	private void setTtyTimeOut(String s) {
 		try {
@@ -184,7 +126,7 @@ public class Config {
 		} catch (NumberFormatException e) {
 			log.error("Wrong Format for TTY Timeout: {}", s);
 		}
-		log.info("Set TTY Timeout: {} Milliseconds", interval);
+		log.info("Set TTY Timeout: {} Milliseconds", ttyTimeOut);
 	}
 
 	public int getTtyTimeOut() {
@@ -199,46 +141,13 @@ public class Config {
 	public String getProtocol() {
 		return protocol;
 	}
-	
-	public int getSubscriberPort() {
-		return subscriberPort;
-	}
 
-	private void setSubscriberPort(String subscriberPort) {
-		try {
-			this.subscriberPort = Integer.parseInt(subscriberPort);
-		} catch (NumberFormatException e) {
-			log.error("Wrong Format for subscriberPort: {}", subscriberPort);
-		}
-		log.info("Set Socket for subscriberPort: {}", this.subscriberPort);
-	}
-
-	
-	
-	public boolean existTelegram(int address) {
-		log.debug("Test if Telegramm {} exist");
-		for (int i=0; i<telegramList.size(); i++) { 
-			log.trace("{}: {} = {}", i, address, telegramList.get(i).getAddress());
-			if (address == telegramList.get(i).getAddress()) return true;
-		}
-		return false;
-	} 
-	
-	public boolean existTelegram(String address) {
-		try {
-			int addr = Integer.parseInt(address, 16);
-			log.trace("{} - > {}", address, addr);
-			return existTelegram(addr);
-		} catch (NumberFormatException e) {
-			log.error("Invalid  Address format: {}", address);
-			return false;
-		}
-	}
 	
 	// Handler for reading xml-Tags
 	public class xHandler implements ContentHandler {
 
-		private Telegram telegram = new Telegram();
+		private Thing thing = null;
+		private Channel channel = null;
 		private String path;
 
 		@Override
@@ -255,12 +164,15 @@ public class Config {
 			case "root.optolink.port":
 				setPort(s);
 				break;
-			case "root.optolink.interval":
-				setInterval(s);
-				break;			
-			case "root.optolink.subscriberPort":
-				setSubscriberPort(s);
-				break;
+			case "root.optolink.adapterID":
+				setAdapterID(s);
+				break;		
+			case "root.optolink.thing.describtion":
+				thing.setDescribtion(s); 
+				break;	
+			case "root.optolink.thing.channel.describtion":
+				channel.setDescribtion(s); 
+				break;	
 			}
 
 		} 
@@ -275,8 +187,11 @@ public class Config {
 		public void endElement(String uri, String localName, String pName)
 				throws SAXException {
 
-			if (localName.equals("telegram")) {
-				addTelegram(telegram);
+			if (localName.equals("thing")) {
+				addThing(thing);
+			}
+			if (localName.equals("channel")) {
+				thing.addChannel(channel);;
 			}
 			path = path.substring(0, path.lastIndexOf('.'));
 		}
@@ -296,13 +211,18 @@ public class Config {
 				deviceType = attr.getValue("device");
 				protocol = attr.getValue("protocol");
 				break;
-			case "root.optolink.telegram":
-				telegram.setAddress(attr.getValue("address"));
-				telegram.setName(attr.getValue("name"));
-				telegram.setAccess(attr.getValue("access"));
-				telegram.setType(attr.getValue("type"));
-				telegram.setDivider(attr.getValue("divider"));
+			case "root.optolink.thing":
+				thing = new Thing(attr.getValue("id"), attr.getValue("type")); 
 				break;
+			case "root.optolink.thing.channel":
+				channel = new Channel (attr.getValue("id"), attr.getValue("type"));
+				break;
+			case "root.optolink.thing.channel.telegram":
+				channel.setTelegram(new Telegram(attr.getValue("address"), 
+						                         attr.getValue("type"), 
+						                         attr.getValue("divider")));
+				break;
+				
 			}
 
 		}

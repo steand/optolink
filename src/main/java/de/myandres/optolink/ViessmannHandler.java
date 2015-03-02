@@ -47,7 +47,7 @@ public class ViessmannHandler {
 	}
 	
 	
-	public synchronized String setTelegramValue(Telegram t, String value) {
+	public synchronized String setValue(Telegram t, String value) {
 
 			log.info("Set not implemented jet");
 			return null;
@@ -56,21 +56,22 @@ public class ViessmannHandler {
 	
 	
 	
-	public synchronized String readTelegramValue(Telegram t)  {
+	public synchronized String getValue(Telegram telegram)  {
 		byte [] buffer = new byte[16];
 		long result=0;
-		int resultLength=viessmannProtocol.getData(buffer,t.getAddress(), t.getLength());
+		
+		int resultLength=viessmannProtocol.getData(buffer,telegram.getAddress(), telegram.getLength());
 		if (log.isTraceEnabled()) {
 	    	log.trace("Number of Bytes: {}", resultLength);
 	    	for (int i=0; i<resultLength; i++) log.trace("[{}] {} ",i,buffer[i]);
 		}
-		switch (t.getType()) {
+		switch (telegram.getType()) {
 		case Telegram.BOOLEAN:
 			if (buffer[0] == 0) return "OFF";
 			return "ON";
 		case Telegram.DATE:
 			//TODO check it
-			return String.format("value=\"%02x.%02x.%02x%02x %02x:%02x:%02x\"",
+			return String.format("%02x.%02x.%02x%02x %02x:%02x:%02x",
 					buffer[3],buffer[2],buffer[0],buffer[1],buffer[5],buffer[6],buffer[7])	;
 		case Telegram.BYTE:
              result = buffer[0];
@@ -91,8 +92,8 @@ public class ViessmannHandler {
 			result = ((long)(0xFF & buffer[3]))*0x1000000  + ((long)(0xFF & buffer[2]))*0x10000  + ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
 			break;
 		}
-		if (t.getDivider() !=1 ) 
-			return String.format(Locale.US,"%.2f", (float)result / t.getDivider());
+		if (telegram.getDivider() !=1 ) 
+			return String.format(Locale.US,"%.2f", (float)result / telegram.getDivider());
 		else return String.format("%d", result);
 		
 	} 

@@ -31,80 +31,46 @@ public class Telegram {
     public final static byte DATE =      8; // 8 Byte -> date
     public final static byte DUMP =      99; // Dump for unknown Telegram-Type
 
- 	
-	public final static byte READ =       1; // access="r"
-	public final static byte WRITE =      2; // access="w"
-	public final static byte READ_WRITE = 3; // access="r/w"
-	
-
-	private String name;
-	private byte access;
+    
 	private int address; 
-	private short length;
 	private byte type;
+	private short length;
 	private short divider; 
-	private int index;
-	
+
 	
 	Telegram() {
-		name = "";
-		access = Telegram.READ;
     	address = 0;
-		length = 0;
 		type = Telegram.DUMP;
+		length = 0;
 		divider = 1; 
 	}
 	
-	Telegram(int index) {
-		this.index=index;
-		name = "";
-		access = Telegram.READ;
-    	address = 0;
-		length = 0;
-		type = Telegram.DUMP;
-		divider = 1; 
+	Telegram(String address, String type, String divider) {
+
+    	setAddress(address);
+		setType(type);
+		setDivider(divider);
 	}
 	
-	Telegram(Telegram t) {
-		this.name = t.name;
-		this.access =t.access;
-		this.address = t.address; 
-		this.length = t.length;
-		this.type = t.type;
-		this.divider = t.divider; 
-		this.index = t.index;
+	Telegram(Telegram telegram) {
+
+		this.address = telegram.address; 
+		this.length = telegram.length;
+		this.type = telegram.type;
+		this.divider = telegram.divider; 
 		
 	}
 
-    public void setIndex(int index) {
-    	this.index=index;
-    	log.trace("Set Index to {}", index);
-    }
-    
-	public void setAccess(String s) {
-		if (s==null) {
-			log.debug("Access Methode not set - set to default: r"); 
-		    s="r";
-		}
-		switch (s.toLowerCase()) {
-		case "r": this.access=Telegram.READ;  break;
-		case "w": this.access=Telegram.WRITE; break;
-		case "r/w": this.access=Telegram.READ_WRITE; break;
-		default: this.access=Telegram.READ;
-		}
-    	log.trace("Set Access to {}({})", s, this.access);
-	
-	}
-	
-
+ 
 	public void setAddress(String address) {
 		log.trace("----------------------------------------");
+		
 		if (address==null) {
 			log.error("Telegram Address not set") ;
 			this.address=0;
 		} else {
 			try {
-				this.address=Integer.parseInt(address,16);
+				this.address = Integer.parseInt(address,16);
 			} catch (NumberFormatException e) {
 				log.error("Invalid  Address format: {}", address);
 				this.address=0;
@@ -179,38 +145,6 @@ public class Telegram {
 		log.trace("Set dividerider to {}", this.divider);
 	}
 	
-
-	public void setName(String name) {
-		if (name==null) { 
-			log.error("Telegram Name not set");
-			name="*unknown";
-		}
-		this.name = name;
-	   	log.trace("Set Name to {}", name);
-	}
-	
-	
-	
-	public String getName() {
-		return name;
-	}
-	
-	public int getIndex() {
-		return index;
-	}
-
-	public byte getAccess() {
-		return access;
-	}
-	
-	public String getAccessAsString() {
-		switch (access) {
-		case Telegram.READ: return "r";
-		case Telegram.WRITE: return "w";
-		case Telegram.READ_WRITE: return "r/w" ;
-		}
-		return "r" ;
-	}
 
 	public int getAddress() {
 		return address;
