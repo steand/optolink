@@ -16,6 +16,9 @@ package de.myandres.optolink;
 /*
  * Install a Socked Handler for ip communication 
  * 
+ * Server can found via Broadcast
+ * Server API Client can connect via TCP
+ * 
  */
 
 import java.io.BufferedReader;
@@ -49,7 +52,7 @@ public class SocketHandler  {
 
       public void start()   {
     	  
-    	  BroadcastListner broadcastListner = new BroadcastListner(config.getPort());
+    	  BroadcastListner broadcastListner = new BroadcastListner(config.getPort(), config.getAdapterID());
     	  
     	  Thread broadcastListnerThread = new Thread(broadcastListner);
     	  broadcastListnerThread.setName("BcListner");
@@ -63,14 +66,11 @@ public class SocketHandler  {
             	  log.info("Listen on port {} for connection", config.getPort());
                   Socket socket = server.accept();
                   log.info("Connection on port {} accept. Remote host {}", config.getPort(), socket.getRemoteSocketAddress());
-                  broadcastListner.connect(socket.getRemoteSocketAddress().toString());
                   open(socket);
-                  broadcastListner.disconnect();
               }
 
               catch (Exception e) {
       	        log.info("Connection on Socket {} rejected or closed by client", config.getPort());
-      	        broadcastListner.disconnect();        
               } 
           } 
          }
@@ -98,10 +98,8 @@ public class SocketHandler  {
             switch (command.toLowerCase()) {
             
             case "list" : list(); break;
-            case "getall" : getall(); break;
             case "get" : getThing(param); break;
             case "set" : set(); break;
-            case "testme" : testMe(); break;
             case "exit" : exit=true; break;
             default: log.error("Unknown Client Command:", inStr[0]); 
             } 
@@ -111,18 +109,6 @@ public class SocketHandler  {
 		
 	}
 
-
-	private void testMe() {
-		// Listen wenn session closed
-		
-	}
-
-	private void getall() {
-		log.trace("Try to get Data for all Addresses");
-		Telegram telegram;
- 
-    	}
-	
 
 
 	private void set() {

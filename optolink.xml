@@ -11,7 +11,7 @@ type = *none
 
 <optolink device="2033" id="300P" protocol="300">
 
-     <adapterID>test</adapterID>             <!-- Unique ID on the Network-->
+     <adapterID>TEST</adapterID>             <!-- Unique ID on the Network-->
      <tty>/dev/ttyAMA0</tty>                 <!-- serial port of the optolink adapter-->
      <ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
      <port>31113</port>                      <!-- port for incomming communication. See also: http://www.iana.org -->

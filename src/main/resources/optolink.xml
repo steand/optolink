@@ -1,60 +1,166 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<optolink device="2033" name="300P" protocol="300">
+<!--
+Mapping for vitotronic/optoling addresses to openhab thinks.
 
-	<tty>/dev/ttyAMA0</tty>
-	<ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
-	<port>31113</port>                      <!-- unassigned Port. See: http://www.iana.org -->
-	<subscriberPort>31114</subscriberPort>
-	<interval>100</interval>                 <!-- Seconds to poll optolink -->
+type = *none
+     -    will not send to openhab but it is posible to ask for this ID on the interface.
+     -    is not implemented in openhab
 
-	<!-- Addressen die von diesem "device" unterstützt werden -->
-
-	<telegram name="deviceId" access='r' address="00F8" type="short" />
-	<telegram name='SystemTime' access='r' address='088E' type='date' />
-	<telegram name='OutsideTemperature' access='r' address='0800' type='short' divider='10'/>
-	
-	<!--# Puffer-Boiler -->
-
-	<telegram name='HotWaterTemperature' access='r' address='0806' type='short' divider='10'/>
-	<telegram name='BoilerTemperatureUp' access='r' address='0810' type='short' divider='10'/>
-	<telegram name='BoilerTemperatureDown' access='r' address='0804' type='short' divider='10'/>
-	<telegram name='HotWaterPump' access='r' address='0846' type='boolean' />
-
-	<!--# Kessel -->
-	<telegram name='KesselTemperature' access='r' address='A202' type='short' divider='100'/>
-	<telegram name='BrennerPower' access='r' address='A305' type='ubyte' divider='2'/>
-
-	<!-- Brennerstatus ist noch nicht klar Addresse noch gesucht -->
-	
-	<telegram name='BrennerStatus' access='r' address='0962' type='short' />
-	<telegram name='BrennerStarts' access='r' address='088A' type='ushort'/>
-	<telegram name='BrennerHours' access='r' address='08A7' type='uint' divider='3600'/>
-	<telegram name='PelletVerbrauch' access='r' address='08B0' type='uint' divider='1000'/>
-	<telegram name='BoilerPump' access='r' address='0845' type='boolean' />
-
-	<!--# Heizkreis 1 -->
-	<telegram name='M1FlowTemperature' access='r' address='2900' type='short' divider='10'/>
-	<telegram name='M1Pump' access='r' address='2906' type='boolean' />
-	<telegram name='M1Gradient' access='r' address='2305' type='byte' divider='10'/>
-	<telegram name='M1Niveau' access='r' address='2304' type='byte'/>
-	
-	<!--# Heizkreis 2 -->
-	<telegram name='M2FlowTemperature' access='r' address='3900' type='short' divider='10'/>
-	<telegram name='M2Pump' access='r' address='3906' type='boolean' />
-	<telegram name='M2Gradient' access='r' address='3305' type='byte' divider='10'/>
-	<telegram name='M2Niveau' access='r' address='3304' type='byte'/>
-
-	<!--# Solaranlage # Muss noch ueberprueft werden wenn Sonne scheint -->
-	<telegram name='CollectorTemperature' access='r' address='6564' length='2' type='short' divider='10'/>
-	<telegram name='SolarBoilerTemperature' access='r' address='6566' length='2' type='short' divider='10'/>
-	<telegram name='SolarPump' access='r' address='6552' length='1' type='boolean' />
-	<telegram name='SolarPumpPower' access='r' address='6553' type='byte'/>
-	<telegram name='SolarLoadStatus' access='r' address='6551' type='boolean' />
-	<telegram name='SolarHours' access='r' address='6568' type='ushort'/>
-	<telegram name='SolarPower' access='r' address='6560' type='uint'/>
-
-	<!--# Sonstiges -->
+-->
 
 
+<optolink device="2033" id="300P" protocol="300">
 
+     <adapterID>TEST</adapterID>             <!-- Unique ID on the Network-->
+     <tty>/dev/ttyAMA0</tty>                 <!-- serial port of the optolink adapter-->
+     <ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
+     <port>31113</port>                      <!-- port for incomming communication. See also: http://www.iana.org -->
+
+     <!-- Addressen die von diesem 'device' unterst�tzt werden -->
+     <thing type="heating" id="300p">
+          <describtion>Viessmann Vitoligno 300P</describtion>
+          <channel type="systemid" id="deviceId">
+               <describtion>System ID</describtion>
+               <telegram address="00F8" type="short"/>
+          </channel>
+          <channel type="systemtime" id="systemtime">
+               <describtion>System Date and Time</describtion>
+               <telegram address="088E" type="date" />
+          </channel>
+          <channel type="temperature" id="outside">
+               <describtion>Outside Temperature</describtion>
+               <telegram address="0800" type="short" divider="10"/>
+          </channel>
+     </thing>
+     <!--# Puffer-StorageTank -->
+     <thing type="storagetank" id="storagetank">
+          <describtion>Hot Water Storage Tank an Buffer</describtion>
+          <channel type="temperature" id="hotwater">
+               <describtion>Hot water temperatur on top of the buffer.</describtion>
+               <telegram  address="0806" type="short" divider="10"/>
+          </channel>
+          <channel type="temperature" id="middle">
+               <describtion>Temperature in the middle of the buffer</describtion>
+               <telegram  address="0810" type="short" divider="10"/>
+          </channel>
+          <channel type="temperature" id="bottom">
+               <describtion>Temperature on the bottom of the buffer</describtion>
+               <telegram  address="0804" type="short" divider="10"/>
+          </channel>
+          <channel type="pump" id="hotwater">
+               <describtion>Cirulation Pump for Hot Water</describtion>
+               <telegram  address="0846" type="boolean" />
+          </channel>
+          <channel type="pump" id="load">
+               <describtion>Loading Pump for Buffer</describtion>
+               <telegram  address="0845" type="boolean" />
+          </channel>
+    </thing>
+    <!--# Kessel -->
+
+    <!--# Burner -->
+    <thing type="burner" id="pelletburner">
+          <describtion>Burner/Fireplace</describtion>
+          <channel type="temperature" id="furnace">
+               <describtion>The furnace temperature of the burner</describtion>
+               <telegram address="A202" type="short" divider="100"/>
+          </channel>
+          <channel type="power" id="Power">
+               <describtion>The furnace Power in %</describtion>
+               <telegram address="A305" type="ubyte" divider="2"/>
+          </channel>
+          <channel type="*none" id="stat">
+              <!-- Brennerstatus ist noch nicht klar Addresse noch gesucht -->
+               <describtion>State of Burner </describtion>
+               <telegram  address="0962" type="short" />
+          </channel>
+          <channel type="counter" id="starts">
+               <describtion>Counts the number of starts sience first start of heating. </describtion>
+                <telegram address="088A" type="ushort"/>
+          </channel>
+          <channel type="time" id="ontime">
+               <describtion>On time of the burner sience first start of heating.  </describtion>
+                <telegram address="08A7" type="uint" divider="3600"/>
+          </channel>
+          <channel type="consumtion" id="consumtion">
+               <describtion>Consumed Pellets since start of heating in t. </describtion>
+                <telegram address="08B0" type="uint" divider="1000"/>
+          </channel>
+     </thing>
+        <!--# Heizkreis 1 -->
+     <thing type="circuit" id="ciruit1">
+          <describtion>Heading Circuit of the first Floor.</describtion>
+          <channel type="temperature" id="flow" >
+               <describtion>Flow temperature</describtion>
+               <telegram address="2900" type="short" divider="10"/>
+          </channel>
+          <channel type="pump" id="pump">
+               <describtion></describtion>
+               <telegram address="2906" type="boolean" />
+          </channel>
+          <channel type="gradient" id="gradient">
+               <describtion>The gradient relativ to outseite temperature.</describtion>
+               <telegram  address="2305" type="byte" divider="10"/>
+          </channel>
+          <channel type="niveau" id="niveau" >
+               <describtion>The niveau relativ to outseite temperature.</describtion>
+               <telegram address="2304" type="byte"/>
+         </channel>
+     </thing>
+
+        <!--# Heizkreis 2 -->
+    <thing type="circuit" id="ciruit2">
+          <describtion>Heading Circuit of the first Floor.</describtion>
+          <channel type="temperature" id="flow" >
+               <describtion>Flow temperature</describtion>
+               <telegram address="3900" type="short" divider="10"/>
+          </channel>
+          <channel type="pump" id="pump">
+               <describtion></describtion>
+               <telegram address="3906" type="boolean" />
+          </channel>
+          <channel type="gradient" id="gradient">
+               <describtion>The gradient relativ to outseite temperature.</describtion>
+               <telegram  address="3305" type="byte" divider="10"/>
+          </channel>
+          <channel type="niveau" id="niveau" >
+               <describtion>The niveau relativ to outseite temperature.</describtion>
+               <telegram address="3304" type="byte"/>
+          </channel>
+      </thing>
+
+        <!--# Solaranlage  -->
+     <thing type="solar" id="solar">
+          <describtion>Thermo Solar System.</describtion>
+          <channel type="temperature" id="collector">
+               <describtion>Collector temperature.</describtion>
+               <telegram address="6564" length="2" type="short" divider="10"/>
+          </channel>
+          <channel type="temperature"  id="storagetank">
+               <describtion>Temperatur of storage tank (same storage tank bottom)</describtion>
+               <telegram address="6566" length="2" type="short" divider="10"/>
+          </channel>
+          <channel type="pump" id="load">
+               <describtion>Pump to load the storage tank from the solar panel.</describtion>
+               <telegram address="6552" length="1" type="boolean" />
+          </channel>
+          <channel type="*none" id="power">
+               <!-- unclear -->
+               <describtion>Maybe the power of the solar pump - TODO check</describtion>
+               <telegram address="6553" type="byte"/>
+          </channel>
+          <channel type="*none" id="loadstat">
+               <!-- unclear -->
+               <describtion></describtion>
+               <telegram address="6551" type="boolean" />
+          </channel>
+          <channel type="time" id="ontime">
+               <describtion>On time of the solar pump in hours.</describtion>
+               <telegram address="6568" type="ushort"/>
+          </channel>
+          <channel type="consumtion" id="power" >
+               <describtion>Consumed power from the sun in KW.  </describtion>
+               <telegram address="6560" type="uint"/>
+          </channel>
+      </thing>
 </optolink>

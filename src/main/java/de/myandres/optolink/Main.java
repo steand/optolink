@@ -13,82 +13,61 @@
  *******************************************************************************/
 package de.myandres.optolink;
 
-import java.awt.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Main {
-	
-    static Logger log = LoggerFactory.getLogger(Main.class);
-    
-    // Central Classes, singular only!!
-    static Config config;
-    static ViessmannHandler viessmannHandler;
-    static OptolinkInterface optolinkInterface;
- 
+
+	static Logger log = LoggerFactory.getLogger(Main.class);
+
+	// Central Classes, singular only!!
+	static Config config;
+	static ViessmannHandler viessmannHandler;
+	static OptolinkInterface optolinkInterface;
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-	    
-	    log.info("Programm gestartet");	    
-	    
-	    try {
-	    	// TODO ExeptionHandling
-            // Central Thread Data
-//            config = new Config("src/main/resources/optolink.xml");
-            config = new Config("optolink.xml");
 
-            
-            
-//            dataStore = new DataStore();
-//            dataStore.setInterval(config.getInterval());
-            
-            //Start TTY Handling for Optolink
-             optolinkInterface = new OptolinkInterface(config.getTTY(),config.getTtyTimeOut());
-  
-            
-            //Start ViessmannHandler
-            
-             viessmannHandler = new ViessmannHandler(config.getProtocol(),optolinkInterface);
-            
-            
-            
-            
-        }  catch (Exception e) {     	
-            log.error("Something is wrong not init", e);
-            viessmannHandler.close();
-            optolinkInterface.close();
-            System.exit(1);
-        }           
-	    
-	    // Install catcher for Kill Signal 
-            Runtime.getRuntime().addShutdownHook(new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    viessmannHandler.close();
-                    optolinkInterface.close();
-                    log.info("Programm normal terminated by Signal (Kill)");
-                }
-            });
+		log.info("Programm gestartet");
 
-            
-         try {   
-     
-           
-            
-            // Run SocketHandler
-            SocketHandler socketHandler = new SocketHandler(config, viessmannHandler);
-            socketHandler.start();
-           
-            
+		try {
 
-        }  catch (Exception e) {     	
-           log.error("Programm abnormal terminated.", e);     
-        }
-	    
+			// config = new Config("src/main/resources/optolink.xml");
+			config = new Config("optolink.xml");
+
+			// Init TTY Handling for Optolink
+			optolinkInterface = new OptolinkInterface(config.getTTY(), config.getTtyTimeOut());
+
+			// Init ViessmannHandler
+			viessmannHandler = new ViessmannHandler(config.getProtocol(), optolinkInterface);
+
+		} catch (Exception e) {
+			log.error("Something is wrong not init", e);
+			viessmannHandler.close();
+			optolinkInterface.close();
+			System.exit(1);
+		}
+
+		// Install catcher for Kill Signal
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				viessmannHandler.close();
+				optolinkInterface.close();
+				log.info("Programm normal terminated by Signal (Kill)");
+			}
+		});
+
+		try {
+
+			// Start SocketHandler
+			SocketHandler socketHandler = new SocketHandler(config, viessmannHandler);
+			socketHandler.start();
+
+		} catch (Exception e) {
+			log.error("Programm abnormal terminated.", e);
+		}
+
 	}
 
 }

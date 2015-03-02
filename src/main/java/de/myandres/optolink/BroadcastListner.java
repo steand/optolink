@@ -13,12 +13,9 @@
  *******************************************************************************/
 package de.myandres.optolink;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,28 +23,18 @@ public class BroadcastListner implements Runnable {
 	
 	static Logger log = LoggerFactory.getLogger(BroadcastListner.class);
 	
-	static String BROADCAST_MESSAGE = "@@@@VITOTRONIC@@@@";
+	static final String BROADCAST_MESSAGE = "@@@@VITOTRONIC@@@@/";
 	int port;
-	boolean isConnect;
 	String connectedIP;
+	String adapterID;
 	
 	
 	
-	BroadcastListner(int port) {
+	BroadcastListner(int port, String adapterID) {
 			log.debug("Init Broadcast Listener on Port", port);
 			this.port = port;
-			isConnect = false;
 			connectedIP = "";
-	}
-	
-	public void connect(String connectedIP) {
-		this.connectedIP = connectedIP;
-		isConnect = true;
-	}
-	
-	public void disconnect() {
-		this.connectedIP = "";
-		isConnect = false;
+			this.adapterID =adapterID;
 	}
 	
 	
@@ -78,13 +65,10 @@ public class BroadcastListner implements Runnable {
 				remoteIPAddress = resivedPacket.getAddress();
 				log.debug("From Host: {}",remoteIPAddress.toString()); 
 
-				if (str.startsWith(BROADCAST_MESSAGE)) {
+				if (str.startsWith(BROADCAST_MESSAGE+adapterID) || 
+						str.startsWith(BROADCAST_MESSAGE+"*")) {
 					// Someone calls me
-					if (!isConnect) {
-						str = BROADCAST_MESSAGE + "[WAIT] CONNECTION";
-					} else {
-					    str = BROADCAST_MESSAGE + "[BUSY] BY " + connectedIP;
-					}
+					str = BROADCAST_MESSAGE + "/"+adapterID;
 					byteArray = str.getBytes();
 					DatagramPacket sendPacket = new DatagramPacket(byteArray, 
 							   byteArray.length, remoteIPAddress, remotePort);

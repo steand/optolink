@@ -65,7 +65,7 @@ public class Config {
 		// start parser
 		log.debug("Start parsing");
 		xmlReader.parse(inputSource);
-		log.info("{} Telegram's are parsed", thingList.size());
+		log.info("{} Things are parsed", thingList.size());
 	}
 	
 	
@@ -73,7 +73,7 @@ public class Config {
 		return thingList;
 	}
 
-	public void addThing(Thing thing) {
+	private void addThing(Thing thing) {
 		log.trace("Add thing id: {}", thing.getId());
 		thingList.add(new Thing(thing));
 	}
