@@ -13,9 +13,9 @@ Primary is is develop for a adaption from [openhab2](https://github.com/openhab/
 It supports on the northbound the concept of openhab2 things.
 
 ##Build
-The application is develop in Eclipse (Luna) with marven support.
+The application is develop in Eclipse (Luna) with maven support.
 Requierd Lib's: rxtx, slf4j, logback (see pom.xml file)
-You can build runtime by Run->Run As->Marven install.
+You can build runtime by Run->Run As->Maven install.
 jar file is found in the folder ./traget
 
 ##Install & running
