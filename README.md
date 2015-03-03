@@ -34,8 +34,9 @@ Installing:
 ##Test it
 Run a terminal programm (like putty), connect to you raspberry by using port 31113 and raw protocol.
 Suported command:
-list -> list all (thing) definition (in xml-File)
-get <Thing.id> -> get Data for thing from heating system.
+  
+* list -> list all (thing) definition (in xml-File)
+* get <Thing.id> -> get Data for thing from heating system.
 
 ##Further doing (my ToDo List)
 1. integration to openlink2 (binding) -> priority
