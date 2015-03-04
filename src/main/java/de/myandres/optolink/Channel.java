@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class Channel {
 	
 	static Logger logger = LoggerFactory.getLogger(Channel.class);
-	
+ 	
 	
 	private String type;
 	private String id;

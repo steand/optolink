@@ -9,6 +9,7 @@ type = *none
 -->
 
 
+
 <optolink device="2033" id="300P" protocol="300">
 
      <adapterID>TEST</adapterID>             <!-- Unique ID on the Network-->

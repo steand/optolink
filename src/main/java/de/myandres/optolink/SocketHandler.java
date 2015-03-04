@@ -20,7 +20,7 @@ package de.myandres.optolink;
  * Server API Client can connect via TCP
  * 
  */
-
+ 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
