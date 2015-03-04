@@ -150,13 +150,13 @@ public class SocketHandler  {
 			thing = thingList.get(t);
 		if ((thing != null) && !thing.getId().startsWith("*") ) {
 			out.println("<thing id=\"" + thing.getId() + "\" type=\"" + thing.getType() + "\">");
-			out.println("  <discribtion>" + thing.getDescribtion() + "</describtion>");
+			out.println("  <discribtion>" + thing.getDescription() + "</describtion>");
 			channelList = thing.getChannelList();
 			for (int i=0; i<channelList.size(); i++) {
 				channel = channelList.get(i);
 				if (!channel.getId().startsWith("*")) {
 					out.println("  <channel id=\""+ channel.getId() +"\" type=\""+channel.getType()+"\">");
-					out.println("    <discribtion>" + channel.getDescribtion() + "</describtion>");
+					out.println("    <discribtion>" + channel.getDescription() + "</describtion>");
 					out.println("</channel>");
 				}
 			}

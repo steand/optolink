@@ -23,14 +23,14 @@ public class Channel {
 	
 	private String type;
 	private String id;
-	private String describtion;
+	private String description;
 	private Telegram telegram;
 	
 	Channel (Channel channel) {
 		logger.trace("Init type: '{}' id: '{}'", channel.getType(), channel.getId() );
 		this.type = channel.getType();
 		this.id = channel.getId();
-		this.describtion = channel.getDescribtion();
+		this.description = channel.getDescription();
 		this.telegram = channel.getTelegram();
 	}
 	
@@ -38,7 +38,7 @@ public class Channel {
 		logger.trace("Init type: '{}' id: '{}'", type, id );
 		this.type = type;
 		this.id = id;
-		this.describtion = null;
+		this.description = null;
 		this.telegram = null;
 	}
 	
@@ -65,12 +65,12 @@ public class Channel {
 		this.id = id;
 	}
 
-	public String getDescribtion() {
-		return describtion;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDescribtion(String description) {
-		this.describtion = description;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

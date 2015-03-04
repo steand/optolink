@@ -12,7 +12,7 @@ public class Thing {
 
 	private String type;
 	private String id;
-	private String describtion;
+	private String description;
 	private List<Channel> channelList;
 	
 	Thing(String id, String type) {
@@ -20,7 +20,7 @@ public class Thing {
 		channelList = new ArrayList<Channel>();
 		this.type = type;
 		this.id = id;
-		this.describtion = null;;
+		this.description = null;;
 	}
 	
 	Thing(Thing thing) {
@@ -29,7 +29,7 @@ public class Thing {
 		this.channelList = thing.channelList;
 		this.type = thing.type;
 		this.id = thing.id;
-		this.describtion = thing.describtion;
+		this.description = thing.description;
 
 	}
 
@@ -49,12 +49,12 @@ public class Thing {
 		this.id = id;
 	}
 
-	public String getDescribtion() {
-		return describtion;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDescribtion(String description) {
-		this.describtion = description;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public List<Channel> getChannelList() {

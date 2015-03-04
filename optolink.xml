@@ -18,41 +18,41 @@ type = *none
 
      <!-- Addressen die von diesem 'device' unterst�tzt werden -->
      <thing type="heating" id="300p">
-          <describtion>Viessmann Vitoligno 300P</describtion>
+          <description>Viessmann Vitoligno 300P</description>
           <channel type="systemid" id="deviceId">
-               <describtion>System ID</describtion>
+               <description>System ID</description>
                <telegram address="00F8" type="short"/>
           </channel>
           <channel type="systemtime" id="systemtime">
-               <describtion>System Date and Time</describtion>
+               <description>System Date and Time</description>
                <telegram address="088E" type="date" />
           </channel>
           <channel type="temperature" id="outside">
-               <describtion>Outside Temperature</describtion>
+               <description>Outside Temperature</description>
                <telegram address="0800" type="short" divider="10"/>
           </channel>
      </thing>
      <!--# Puffer-StorageTank -->
      <thing type="storagetank" id="storagetank">
-          <describtion>Hot Water Storage Tank an Buffer</describtion>
+          <description>Hot Water Storage Tank an Buffer</description>
           <channel type="temperature" id="hotwater">
-               <describtion>Hot water temperatur on top of the buffer.</describtion>
+               <description>Hot water temperatur on top of the buffer.</description>
                <telegram  address="0806" type="short" divider="10"/>
           </channel>
           <channel type="temperature" id="middle">
-               <describtion>Temperature in the middle of the buffer</describtion>
+               <description>Temperature in the middle of the buffer</description>
                <telegram  address="0810" type="short" divider="10"/>
           </channel>
           <channel type="temperature" id="bottom">
-               <describtion>Temperature on the bottom of the buffer</describtion>
+               <description>Temperature on the bottom of the buffer</description>
                <telegram  address="0804" type="short" divider="10"/>
           </channel>
           <channel type="pump" id="hotwater">
-               <describtion>Cirulation Pump for Hot Water</describtion>
+               <description>Cirulation Pump for Hot Water</description>
                <telegram  address="0846" type="boolean" />
           </channel>
           <channel type="pump" id="load">
-               <describtion>Loading Pump for Buffer</describtion>
+               <description>Loading Pump for Buffer</description>
                <telegram  address="0845" type="boolean" />
           </channel>
     </thing>
@@ -60,106 +60,106 @@ type = *none
 
     <!--# Burner -->
     <thing type="burner" id="pelletburner">
-          <describtion>Burner/Fireplace</describtion>
+          <description>Burner/Fireplace</description>
           <channel type="temperature" id="furnace">
-               <describtion>The furnace temperature of the burner</describtion>
+               <description>The furnace temperature of the burner</description>
                <telegram address="A202" type="short" divider="100"/>
           </channel>
           <channel type="power" id="Power">
-               <describtion>The furnace Power in %</describtion>
+               <description>The furnace Power in %</description>
                <telegram address="A305" type="ubyte" divider="2"/>
           </channel>
           <channel type="*none" id="stat">
               <!-- Brennerstatus ist noch nicht klar Addresse noch gesucht -->
-               <describtion>State of Burner </describtion>
+               <description>State of Burner </description>
                <telegram  address="0962" type="short" />
           </channel>
           <channel type="counter" id="starts">
-               <describtion>Counts the number of starts sience first start of heating. </describtion>
+               <description>Counts the number of starts sience first start of heating. </description>
                 <telegram address="088A" type="ushort"/>
           </channel>
           <channel type="time" id="ontime">
-               <describtion>On time of the burner sience first start of heating.  </describtion>
+               <description>On time of the burner sience first start of heating.  </description>
                 <telegram address="08A7" type="uint" divider="3600"/>
           </channel>
           <channel type="consumtion" id="consumtion">
-               <describtion>Consumed Pellets since start of heating in t. </describtion>
+               <description>Consumed Pellets since start of heating in t. </description>
                 <telegram address="08B0" type="uint" divider="1000"/>
           </channel>
      </thing>
         <!--# Heizkreis 1 -->
      <thing type="circuit" id="ciruit1">
-          <describtion>Heading Circuit of the first Floor.</describtion>
+          <description>Heading Circuit of the first Floor.</description>
           <channel type="temperature" id="flow" >
-               <describtion>Flow temperature</describtion>
+               <description>Flow temperature</description>
                <telegram address="2900" type="short" divider="10"/>
           </channel>
           <channel type="pump" id="pump">
-               <describtion></describtion>
+               <description></description>
                <telegram address="2906" type="boolean" />
           </channel>
           <channel type="gradient" id="gradient">
-               <describtion>The gradient relativ to outseite temperature.</describtion>
+               <description>The gradient relativ to outseite temperature.</description>
                <telegram  address="2305" type="byte" divider="10"/>
           </channel>
           <channel type="niveau" id="niveau" >
-               <describtion>The niveau relativ to outseite temperature.</describtion>
+               <description>The niveau relativ to outseite temperature.</description>
                <telegram address="2304" type="byte"/>
          </channel>
      </thing>
 
         <!--# Heizkreis 2 -->
     <thing type="circuit" id="ciruit2">
-          <describtion>Heading Circuit of the first Floor.</describtion>
+          <description>Heading Circuit of the first Floor.</description>
           <channel type="temperature" id="flow" >
-               <describtion>Flow temperature</describtion>
+               <description>Flow temperature</description>
                <telegram address="3900" type="short" divider="10"/>
           </channel>
           <channel type="pump" id="pump">
-               <describtion></describtion>
+               <description></description>
                <telegram address="3906" type="boolean" />
           </channel>
           <channel type="gradient" id="gradient">
-               <describtion>The gradient relativ to outseite temperature.</describtion>
+               <description>The gradient relativ to outseite temperature.</description>
                <telegram  address="3305" type="byte" divider="10"/>
           </channel>
           <channel type="niveau" id="niveau" >
-               <describtion>The niveau relativ to outseite temperature.</describtion>
+               <description>The niveau relativ to outseite temperature.</description>
                <telegram address="3304" type="byte"/>
           </channel>
       </thing>
 
         <!--# Solaranlage  -->
      <thing type="solar" id="solar">
-          <describtion>Thermo Solar System.</describtion>
+          <description>Thermo Solar System.</description>
           <channel type="temperature" id="collector">
-               <describtion>Collector temperature.</describtion>
+               <description>Collector temperature.</description>
                <telegram address="6564" length="2" type="short" divider="10"/>
           </channel>
           <channel type="temperature"  id="storagetank">
-               <describtion>Temperatur of storage tank (same storage tank bottom)</describtion>
+               <description>Temperatur of storage tank (same storage tank bottom)</description>
                <telegram address="6566" length="2" type="short" divider="10"/>
           </channel>
           <channel type="pump" id="load">
-               <describtion>Pump to load the storage tank from the solar panel.</describtion>
+               <description>Pump to load the storage tank from the solar panel.</description>
                <telegram address="6552" length="1" type="boolean" />
           </channel>
           <channel type="*none" id="power">
                <!-- unclear -->
-               <describtion>Maybe the power of the solar pump - TODO check</describtion>
+               <description>Maybe the power of the solar pump - TODO check</description>
                <telegram address="6553" type="byte"/>
           </channel>
           <channel type="*none" id="loadstat">
                <!-- unclear -->
-               <describtion></describtion>
+               <description></description>
                <telegram address="6551" type="boolean" />
           </channel>
           <channel type="time" id="ontime">
-               <describtion>On time of the solar pump in hours.</describtion>
+               <description>On time of the solar pump in hours.</description>
                <telegram address="6568" type="ushort"/>
           </channel>
           <channel type="consumtion" id="power" >
-               <describtion>Consumed power from the sun in KW.  </describtion>
+               <description>Consumed power from the sun in KW.  </description>
                <telegram address="6560" type="uint"/>
           </channel>
       </thing>

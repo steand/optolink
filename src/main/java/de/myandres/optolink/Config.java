@@ -167,11 +167,11 @@ public class Config {
 			case "root.optolink.adapterID":
 				setAdapterID(s);
 				break;		
-			case "root.optolink.thing.describtion":
-				thing.setDescribtion(s); 
+			case "root.optolink.thing.description":
+				thing.setDescription(s); 
 				break;	
-			case "root.optolink.thing.channel.describtion":
-				channel.setDescribtion(s); 
+			case "root.optolink.thing.channel.description":
+				channel.setDescription(s); 
 				break;	
 			}
 
