@@ -25,6 +25,7 @@ public class ViessmannHandler {
 	private OptolinkInterface optolinkInterface;
 
 	ViessmannHandler(String interfaceProtocol, OptolinkInterface optolinkInterface) throws Exception {
+		
 		log.debug("Init Handler for Protokoll {} ...", interfaceProtocol);
 		switch (interfaceProtocol) {
 		case "300":
@@ -47,10 +48,26 @@ public class ViessmannHandler {
 	}
 	
 	
-	public synchronized String setValue(Telegram t, String value) {
+	public synchronized String setValue(Telegram telegram, String value) {
+		byte [] buffer = new byte[16];
+		int locValue;
+		
+		switch (telegram.getType()) {
+		case Telegram.BOOLEAN:
+			if (value.equals("ON")) locValue=1; else  locValue=0;
+			break;
+			
+		case Telegram.DATE:
+			log.error("Updat of Date not implemented");
+			return null	;
+		default : float fl = (new Float(value)) * telegram.getDivider();
+			locValue = (int) fl;
+			break;
+		}
+		int resultLength = viessmannProtocol.setData(buffer, telegram.getAddress() , telegram.getLength(), locValue);
 
-			log.info("Set not implemented jet");
-			return null;
+		if (resultLength == 0) return null;
+        else return formatValue(buffer, telegram.getType(), telegram.getDivider());
 
 	}
 	
@@ -65,7 +82,15 @@ public class ViessmannHandler {
 	    	log.trace("Number of Bytes: {}", resultLength);
 	    	for (int i=0; i<resultLength; i++) log.trace("[{}] {} ",i,buffer[i]);
 		}
-		switch (telegram.getType()) {
+		return formatValue(buffer, telegram.getType(), telegram.getDivider());
+		
+	} 
+	
+	private String formatValue(byte[] buffer, byte type, short divider) {
+		
+		log.trace("Formating....");
+		long result = 0;
+		switch (type) {
 		case Telegram.BOOLEAN:
 			if (buffer[0] == 0) return "OFF";
 			return "ON";
@@ -92,11 +117,12 @@ public class ViessmannHandler {
 			result = ((long)(0xFF & buffer[3]))*0x1000000  + ((long)(0xFF & buffer[2]))*0x10000  + ((long)(0xFF & buffer[1]))*0x100  + (long)(0xFF & buffer[0]);
 			break;
 		}
-		if (telegram.getDivider() !=1 ) 
-			return String.format(Locale.US,"%.2f", (float)result / telegram.getDivider());
+		if (divider !=1 ) 
+			return String.format(Locale.US,"%.2f", (float)result / divider);
 		else return String.format("%d", result);
 		
-	} 
+		
+	}
 	
 
 }

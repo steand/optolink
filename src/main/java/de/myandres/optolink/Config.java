@@ -216,7 +216,7 @@ public class Config {
 				thing = new Thing(attr.getValue("id"), attr.getValue("type")); 
 				break;
 			case "root.optolink.thing.channel":
-				channel = new Channel (attr.getValue("id"), attr.getValue("type"));
+				channel = new Channel (attr.getValue("id"));
 				break;
 			case "root.optolink.thing.channel.telegram":
 				channel.setTelegram(new Telegram(attr.getValue("address"), 

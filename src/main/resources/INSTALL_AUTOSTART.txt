@@ -1,0 +1,12 @@
+To start the program at boottime:
+
+1.) edit optolink.init.d (USER & HOME)
+
+2.) sudo cp optolink.init.d /etc/init.d/optolink
+
+3.) sudo 755 /etc/init.d/optolink
+
+4.) sudo update-rc-d optolink defaults
+
+
+now optolink adapter going to start at boottime. 

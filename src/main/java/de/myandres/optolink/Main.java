@@ -33,7 +33,7 @@ public class Main {
 		try {
 
 			// config = new Config("src/main/resources/optolink.xml");
-			config = new Config("optolink.xml");
+			config = new Config("conf/optolink.xml");
 
 			// Init TTY Handling for Optolink
 			optolinkInterface = new OptolinkInterface(config.getTTY(), config.getTtyTimeOut());

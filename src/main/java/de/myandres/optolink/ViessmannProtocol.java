@@ -16,8 +16,8 @@ package de.myandres.optolink;
 public interface ViessmannProtocol {
 	
 	public int getData(byte[] buffer, int address, int length);
-	public void setData(byte[] buffer, int address, int length);
 	void close();
+	int setData(byte[] buffer, int address, int length, int value);
 
 
 }

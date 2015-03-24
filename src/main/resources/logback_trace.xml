@@ -3,7 +3,7 @@
 
 
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>logs/optolink.log</file>
+		<file>logs/optolink_trace.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- weekly rollover and archiving -->
 			<fileNamePattern>logs/optolink-%d{yyyy-ww}.log.zip</fileNamePattern>
@@ -15,10 +15,19 @@
 		</encoder>
 	</appender>
 
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %M - %msg%n</pattern>
+        </encoder>
+    </appender>
     
     <logger name="de.myandres" level="INFO">
        <appender-ref ref="FILE" />
     </logger>
-
+    
+    <logger name="de.myandres" level="TRACE">
+       <appender-ref ref="CONSOLE" />
+    </logger>
+    
     
 </configuration> 

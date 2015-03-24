@@ -68,7 +68,7 @@ public class BroadcastListner implements Runnable {
 				if (str.startsWith(BROADCAST_MESSAGE+adapterID) || 
 						str.startsWith(BROADCAST_MESSAGE+"*")) {
 					// Someone calls me
-					str = BROADCAST_MESSAGE + "/"+adapterID;
+					str = BROADCAST_MESSAGE + adapterID;
 					byteArray = str.getBytes();
 					DatagramPacket sendPacket = new DatagramPacket(byteArray, 
 							   byteArray.length, remoteIPAddress, remotePort);
@@ -85,16 +85,15 @@ public class BroadcastListner implements Runnable {
 				}
 		   
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				log.error("Something is wrong in broadcast listner thread!!! Diagnostic {}", e);
-				log.error("Broadcast Listner die - no again");
+				log.error("Broadcast Listner die ");
 				
 			} }
 		   
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("Something is wrong in broadcast listner thread!!! Diagnostic {}", e);
-			log.error("Broadcast Listner die - no again");
+			log.error("Broadcast Listner die");
 			
 		}  finally {
 				try {

@@ -70,14 +70,75 @@ public class Viessmann300 implements ViessmannProtocol {
              } }
             }
             log.error("!!!!!!!!!!!!!!!! Trouble with communication to OptolinkInterface !!!!!!!!" );
-            log.error("!!!!!!!!!!!!!!!! Pleace check hardware !!!!!!!!" );
+            log.error("Try to start session again .... " );
+            startSession();
+            log.error("If error continues pleace check hardware !!!!!!!!" );
 
             return -1; // UPS
     }
 	
 	@Override
-	public void setData(byte[] buffer, int address, int length) {
-		// TODO Auto-generated method stub
+	public synchronized int setData(byte[] buffer, int address, int length, int value) {
+        byte[] localBuffer = new byte[16];
+        int returNumberOfBytes;
+        
+        for (int i=0; i<2; i++) {
+        
+        log.debug(String.format("Set Data for address %04X .... ", address)); 
+
+        // construct TxD
+
+        localBuffer[0] = 0x00;                    // Request
+        localBuffer[1] = 0x02;                    // write Data
+        localBuffer[2] = (byte)(address >> 8);    // upper Byte of address
+        localBuffer[3] = (byte)(address & 0xff);  // lower Byte of address
+        localBuffer[4] = (byte)length;            // number bytes
+        switch (length) {
+        case 1: localBuffer[5] = (byte)(value & 0xff);
+        		break;
+        case 2: localBuffer[5] = (byte)(value >> 8);
+        		localBuffer[6] = (byte)(value & 0xff);
+        		break;
+        case 4: localBuffer[5] = (byte)(value >> 24);
+                localBuffer[6] = (byte)(value >> 16);
+                localBuffer[7] = (byte)(value >> 8);
+				localBuffer[8] = (byte)(value & 0xff);
+				break;
+        }
+
+       if ( transmit(localBuffer,5+length)) {;         // send Buffer 
+
+        // RxD
+        returNumberOfBytes = resive(localBuffer);  // read answer 
+        
+        if (returNumberOfBytes > 0) {
+
+            // check RxD 
+           int returnAddress;
+           if (localBuffer[0] == 0x03) 
+        	   log.error("Answer Byte is 0x03: Return Error(Wrong Adress,maybe)");
+           if (localBuffer[0] != 0x01) 
+        	   log.error("Answer Byte (0x01) expect, but: 0x{} resived", 
+        			   String.format("%02X", localBuffer[0]));
+           if (localBuffer[1] != 0x02) 
+        	   log.error("Data Write Byte (0x02) expect, but: 0x{} resived",
+        			   String.format("%02X",buffer[1]));
+           returnAddress = ((localBuffer[2] & 0xFF) << 8) + ((int)localBuffer[3] & 0xFF); // Address
+           if (returnAddress != address) 
+        	   log.error(String.format("Adress (%04X) expect, but: %04X resived", address, returnAddress));
+           for (int j=0;j<localBuffer[4];j++) buffer[j] =localBuffer[j+5];  // copy Result 
+           log.debug(String.format("Data for address %04X got ", address)); 
+           return (localBuffer[4]); // buffer length
+         }
+        }
+        }
+        log.error("!!!!!!!!!!!!!!!! Trouble with communication to OptolinkInterface !!!!!!!!" );
+        log.error("Try to start session again .... " );
+        startSession();
+        log.error("If error continues pleace check hardware !!!!!!!!" );
+
+        return -1; // UPS
+
 		
 	}
 
@@ -108,7 +169,7 @@ public class Viessmann300 implements ViessmannProtocol {
                log.trace("Open Session to Optolink [ACK] failed");
             }
             log.error("!!! Trouble with communication to OptolinkInterface !!!" );
-            log.error("!!! Pleace check hardware !!!" );
+            log.error("!!! Please check hardware !!!" );
     }
 
     public synchronized void stopSession() {
@@ -181,7 +242,7 @@ public class Viessmann300 implements ViessmannProtocol {
             for (int i=0;i<len;i++) checksum+=buffer[i];
 
             optolinkInterface.write(0x41);                            // Telegram start byte
-            optolinkInterface.write(len);                             // nuber of byte
+            optolinkInterface.write(len);                             // number of byte
 
             for (int i=0; i<len; i++) {                    // send data
                     optolinkInterface.write(buffer[i]);

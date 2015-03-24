@@ -16,7 +16,7 @@ It supports on the northbound the concept of openhab2 things.
 The application is develop in Eclipse (Luna) with maven support.
 Requierd Lib's: rxtx, slf4j, logback (see pom.xml file)
 You can build runtime by Run->Run As->Maven install.
-jar file is found in the folder ./traget
+Files for runtime are found in ./traget
 
 ##Install & running
 All test was running on a Raspberry PI B with Raspbian "wheezy".  
@@ -25,10 +25,9 @@ Installing:
 1. Install the rxtx (apt)
 2. Config /dev/ttyAMA0 (see: https://cae2100.wordpress.com/2012/12/23/raspberry-pi-and-the-serial-port/)
 3. Install your optolink hardware 
-4. copy: optolink-<version>-SNAPSHOT-jar-with-dependencies.jar from the target folder to Rasberry
-5. copy optolink.xml and logback.xml to Rasberry - same folder than jar file.
-6. Edit optolink.xml for your heading system.
-7. start it: ```java  -Dlogback.configurationFile=./logback.xml -Djava.library.path=/usr/lib/jni -Dgnu.io.rxtx.SerialPorts=/dev/ttyAMA0 -jar optolink-0.0.1-SNAPSHOT-jar-with-dependencies.jar ```  
+4. copy: optolink-runtime.zip from the target folder to Rasberry and extract it.
+5. Edit conf/optolink.xml for your heading system.
+6. start it: ```./start_debug.sh ```  
 
 
 ##Test it
@@ -37,14 +36,11 @@ Suported command:
   
 * list -> list all (thing) definition (in xml-File)
 * get <Thing.id> -> get Data for thing from heating system.
+* set <ThingId>:<ChannelId> <value>  (The syntax of Value is not checked)
 
 ##Further doing (my ToDo List)
-1. integration to openlink2 (binding) -> priority
-2. implement set function
-3. implementaion of logfile.
-3. bug-fixing
-4. Full integration in PI (start.sh, logfile, run it with startup PI,..)
-last: Build a stable version (together with openhab2).
+1. bug-fixing (if bugs found ;-)
+2. Build a stable version (together with openhab2).
 
 
 
