@@ -36,8 +36,8 @@ Run a terminal programm (like putty), connect to you raspberry by using port 311
 Suported command:
   
 * list -> list all (thing) definition (in xml-File)
-* get <Thing.id> [<channel.id>,<channel.id>,..] -> get Data for thing from heating system.
-* set <ThingId>:<ChannelId> <value>  (The syntax of Value is not checked)
+* get Thing.Id [channel.Id,channel.Id,..] -> get Data for thing from heating system.
+* set Thing-Id:Channel.Id value  (The syntax of Value is not checked)
 
 ##Further doing (my ToDo List)
 1. bug-fixing (if bugs found ;-)
