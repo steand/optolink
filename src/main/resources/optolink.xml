@@ -33,7 +33,7 @@ For more information about addresses and types see: http://openv.wikispaces.com/
      
      <thing type="heating" id="300P">
           <description>Viessmann Vitoligno 300P</description>
-          <channel  id="systemid">
+          <channel  id="*systemid">
                <description>System ID</description>
                <telegram address="00F8" type="short"/>
           </channel>
@@ -41,8 +41,8 @@ For more information about addresses and types see: http://openv.wikispaces.com/
                <description>System Date and Time</description>
                <telegram address="088E" type="date" />
           </channel>
-          <channel id="outside_temp">
-               <description>Outside Temperature</description>
+          <channel id="outsite_temp">
+               <description>Outsite Temperature</description>
                <telegram address="0800" type="short" divider="10"/>
           </channel>
           <channel id="boiler_temp">
@@ -69,19 +69,40 @@ For more information about addresses and types see: http://openv.wikispaces.com/
                <description>Cirulation Pump for Hot Water</description>
                <telegram  address="0846" type="boolean" />
           </channel>
-          <channel id="loadpump">
-               <description>Loading Pump for Buffer</description>
-               <telegram  address="0845" type="boolean" />
-          </channel>
     </thing>
     <!--# Kessel -->
 
     <!--# Burner -->
     <thing type="pelletburner" id="pelletburner">
           <description>Burner/Fireplace</description>
+           <channel id="flame_temp">
+               <description>The furnace Power in %</description>
+               <telegram address="0B14" type="ushort" divider="10"/>
+          </channel>
+           <channel id="lambdasensor">
+               <description>O2 in %</description>
+               <telegram address="0B18" type="ushort" divider="10"/>
+          </channel>
+           <channel id="airshutter_prim">
+               <description>Primary air shutter %</description>
+               <telegram address="0B1A" type="ubyte" divider="1"/>
+          </channel>
+           <channel id="airshutter_sec">
+               <description>Secondary air shutter %</description>
+               <telegram address="0B1A" type="ubyte" divider="1"/>
+          </channel>
+           <channel id="fanspeed">
+               <description>actual Fanspeed </description>
+               <telegram address="0B1E" type="ushort" divider="1"/>
+          </channel>
+          <channel id="fanspeed_target">
+               <description>target Fanspeed </description>
+               <telegram address="0B1C" type="ushort" divider="1"/>
+          </channel>          
+             
           <channel id="power">
                <description>The furnace Power in %</description>
-               <telegram address="A305" type="ubyte" divider="2"/>
+               <telegram address="0B20" type="ubyte" divider="1"/>
           </channel>
           <channel id="*stat">
               <!-- Brennerstatus ist noch nicht klar Addresse noch gesucht -->
@@ -99,6 +120,10 @@ For more information about addresses and types see: http://openv.wikispaces.com/
           <channel id="consumedpellets">
                <description>Consumed Pellets since start of heating in t. </description>
                 <telegram address="08B0" type="uint" divider="1000"/>
+          </channel>
+          <channel id="flowuprating">
+               <description>return flow uprating</description>
+               <telegram  address="250A" type="boolean" />
           </channel>
      </thing>
         <!--# Heizkreis 1 -->
@@ -133,15 +158,15 @@ For more information about addresses and types see: http://openv.wikispaces.com/
                <telegram address="2306" type="byte"/>
          </channel>
          <channel id="save_temp" >
-               <description>Save (Spar) temperature.</description>
+               <description>Save temperature.</description>
                <telegram address="2307" type="byte"/>
          </channel>
           <channel id="gradient">
-               <description>The gradient relativ to outseite temperature.</description>
+               <description>The gradient relativ to outsite temperature.</description>
                <telegram  address="2305" type="byte" divider="10"/>
           </channel>
           <channel id="niveau" >
-               <description>The niveau relativ to outseite temperature.</description>
+               <description>The niveau relativ to outsite temperature.</description>
                <telegram address="2304" type="byte"/>
          </channel>
      </thing>
@@ -177,16 +202,16 @@ For more information about addresses and types see: http://openv.wikispaces.com/
                <description>Room temperature.</description>
                <telegram address="3306" type="byte"/>
          </channel>
-                 <channel id="save_temp" >
+         <channel id="save_temp" >
                <description>Save temperature.</description>
                <telegram address="3307" type="byte"/>
          </channel>
           <channel id="gradient">
-               <description>The gradient relativ to outseite temperature.</description>
+               <description>The gradient relativ to outsite temperature.</description>
                <telegram  address="3305" type="byte" divider="10"/>
           </channel>
           <channel id="niveau" >
-               <description>The niveau relativ to outseite temperature.</description>
+               <description>The niveau relativ to outsite temperature.</description>
                <telegram address="3304" type="byte"/>
           </channel>
       </thing>
@@ -202,18 +227,13 @@ For more information about addresses and types see: http://openv.wikispaces.com/
                <description>Temperatur of storage tank (same storage tank bottom)</description>
                <telegram address="6566" length="2" type="short" divider="10"/>
           </channel>
-          <channel id="load">
+          <channel id="bufferload">
                <description>Pump to load the storage tank from the solar panel.</description>
                <telegram address="6552" length="1" type="boolean" />
           </channel>
-          <channel id="*power">
-               <!-- unclear -->
-               <description>Maybe the power of the solar pump - TODO check</description>
-               <telegram address="6553" type="byte"/>
-          </channel>
-          <channel id="*loadstat">
-               <!-- unclear -->
-               <description></description>
+          <channel id="loadsuppression">
+               <!-- maybe unclear -->
+               <description>Load suppression</description>
                <telegram address="6551" type="boolean" />
           </channel>
           <channel id="ontime">

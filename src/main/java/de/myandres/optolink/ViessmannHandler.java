@@ -96,8 +96,8 @@ public class ViessmannHandler {
 			return "ON";
 		case Telegram.DATE:
 			//TODO check it
-			return String.format("%02x.%02x.%02x%02x %02x:%02x:%02x",
-					buffer[3],buffer[2],buffer[0],buffer[1],buffer[5],buffer[6],buffer[7])	;
+			return String.format("%02x%02x-%02x-%02xT%02x:%02x:%02x",
+					buffer[0],buffer[1],buffer[2],buffer[3],buffer[5],buffer[6],buffer[7])	;
 		case Telegram.BYTE:
              result = buffer[0];
              break;

@@ -26,9 +26,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,37 +81,74 @@ public class SocketHandler  {
 		BufferedReader in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintStream(socket.getOutputStream());
 
-        boolean exit=false;
         
         out.println("<!-- #Helo from viessmann -->");
         out.println("<optolink>");
         
-        String command;
-        String param1;
-        String param2;
+        String inStr;
         
-        while(!exit) {
-            String [] inStr = in.readLine().trim().split(" +");
-            command=inStr[0];
-            if (inStr.length > 1) param1 = inStr[1]; else param1="";
-            if (inStr.length > 2) param2 = inStr[2]; else param2="";
-            if (log.isTraceEnabled()) {
-                 log.trace("Command): |{}|", command);
-                 log.trace("param1   : |{}|", param1);
-                 log.trace("param2   : |{}|", param2);
-            }
-            switch (command.toLowerCase()) {
-            
-            case "list" : list(); break;
-            case "get" : getThing(param1); break;
-            case "set" : set(param1, param2); break;
-            case "exit" : exit=true; break;
-            default: log.error("Unknown Client Command:", inStr[0]); 
-            } 
-        } 
+        while(true) {
+            inStr = in.readLine();
+            if (inStr.toLowerCase().startsWith("exit")) break;
+            if (!inStr.equals(null)) new Thread (new CommandExec(inStr)).start();
+        }
         
         out.println("<!-- #Bye from viessmann -->");
 		
+	}
+
+	
+	// Start a thread for each call command: No blocking of caller
+	
+	public class CommandExec implements Runnable {
+		
+		String param;
+		
+		CommandExec(String param)
+		{
+			this.param = param;
+		}
+
+	    public void run() {
+	        String command;
+	        String param1;
+	        String param2;
+	        
+	    	log.debug("Execute Thread for: '{}'", param );
+	        String [] inStr = param.trim().split(" +");
+	        command=inStr[0];
+	        if (inStr.length > 1) param1 = inStr[1]; else param1="";
+	        if (inStr.length > 2) param2 = inStr[2]; else param2="";
+	        exec(command, param1, param2);
+    	    log.debug("Thread for: '{}' done", param );
+	    }
+
+
+	        
+	    }
+	    
+	    private synchronized void exec(String command, String param1, String param2 ) {
+	    	
+	        if (log.isTraceEnabled()) {
+                log.trace("Queue Command: |{}|", command);
+                log.trace("      param1 : |{}|", param1);
+                log.trace("      param2 : |{}|", param2);
+           }
+           
+            
+	    	switch (command.toLowerCase()) {
+            
+            case "list" : list(); break;
+            case "get" : if (param2.equals("")) getThing(param1); 
+                         else getThing(param1, param2);
+                         break;
+            case "set" : set(param1, param2); break;
+            default: log.error("Unknown Client Command:", command); 
+            
+            log.trace("Queue Command: |{}| done", command);
+	    	
+	    }
+	    
 	}
 
 
@@ -153,6 +187,28 @@ public class SocketHandler  {
 					out.println("    <channel id=\""+ channel.getId() +"\" value=\""+ 
 				                  viessmannHandler.getValue(channel.getTelegram())+"\"/>");
 				}
+			}
+			out.println("  </thing>");
+			out.println("<data>");
+		}
+	}
+	
+	private void getThing(String id, String channels) {
+		Channel channel;
+		log.debug("Try to get Thing for ID: {} channels: {}", id, channels);
+		String[] channelList = channels.split(",");
+		Thing thing = config.getThing(id);
+		if (thing != null) {
+			out.println("<data>");
+			out.println("  <thing id=\"" + thing.getId() + "\">");
+			for (int i=0; i<channelList.length; i++){
+			   channel = thing.getChannel(channelList[i]);
+			   if (channel!=null) {
+					out.println("    <channel id=\""+ channel.getId() +"\" value=\""+ 
+				                  viessmannHandler.getValue(channel.getTelegram())+"\"/>");
+			   } else { 
+				   log.error("Channel : {}.{} not define! ", id, channelList[i] );
+			   }
 			}
 			out.println("  </thing>");
 			out.println("<data>");

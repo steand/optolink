@@ -17,6 +17,7 @@ The application is develop in Eclipse (Luna) with maven support.
 Requierd Lib's: rxtx, slf4j, logback (see pom.xml file)
 You can build runtime by Run->Run As->Maven install.
 Files for runtime are found in ./traget
+Or download the install package from Github.
 
 ##Install & running
 All test was running on a Raspberry PI B with Raspbian "wheezy".  
@@ -35,7 +36,7 @@ Run a terminal programm (like putty), connect to you raspberry by using port 311
 Suported command:
   
 * list -> list all (thing) definition (in xml-File)
-* get <Thing.id> -> get Data for thing from heating system.
+* get <Thing.id> [<channel.id>,<channel.id>,..] -> get Data for thing from heating system.
 * set <ThingId>:<ChannelId> <value>  (The syntax of Value is not checked)
 
 ##Further doing (my ToDo List)

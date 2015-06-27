@@ -37,7 +37,7 @@ public class Viessmann300 implements ViessmannProtocol {
             byte[] localBuffer = new byte[16];
             int returNumberOfBytes;
             
-            for (int i=0; i<2; i++) {
+            for (int i=0; i<3; i++) {
             
             log.debug(String.format("Get Data for address %04X .... ", address)); 
 
@@ -68,12 +68,13 @@ public class Viessmann300 implements ViessmannProtocol {
                log.debug(String.format("Data for address %04X got ", address)); 
                return (returNumberOfBytes-5); // buffer length
              } }
+             log.debug("Communication to OptolinkInterface fail" );
+             log.debug(" {}. Try to start session again .... ", i+1);
+             startSession();
+             optolinkInterface.flush(); 
             }
-            log.error("!!!!!!!!!!!!!!!! Trouble with communication to OptolinkInterface !!!!!!!!" );
-            log.error("Try to start session again .... " );
-            startSession();
+            log.error("Trouble with communication to OptolinkInterface !!!!!!!!" );
             log.error("If error continues pleace check hardware !!!!!!!!" );
-
             return -1; // UPS
     }
 	
@@ -82,7 +83,7 @@ public class Viessmann300 implements ViessmannProtocol {
         byte[] localBuffer = new byte[16];
         int returNumberOfBytes;
         
-        for (int i=0; i<2; i++) {
+        for (int i=0; i<3; i++) {
         
         log.debug(String.format("Set Data for address %04X .... ", address)); 
 
@@ -131,15 +132,14 @@ public class Viessmann300 implements ViessmannProtocol {
            return (localBuffer[4]); // buffer length
          }
         }
-        }
-        log.error("!!!!!!!!!!!!!!!! Trouble with communication to OptolinkInterface !!!!!!!!" );
-        log.error("Try to start session again .... " );
-        startSession();
-        log.error("If error continues pleace check hardware !!!!!!!!" );
-
-        return -1; // UPS
-
-		
+       log.debug("Communication to OptolinkInterface fail" );
+       log.debug(" {}. Try to start session again .... ", i+1);
+       startSession();
+       optolinkInterface.flush(); 
+      }
+      log.error("Trouble with communication to OptolinkInterface !!!!!!!!" );
+      log.error("If error continues pleace check hardware !!!!!!!!" );
+      return -1; // UPS		
 	}
 
 	@Override
