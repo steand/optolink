@@ -39,6 +39,9 @@ public class Config {
 
 	private String adapterID="TEST"; 
 	private String tty;
+	private String ttyIP;
+	private Integer ttyPort;
+	private String ttyType;
 	private int ttyTimeOut = 2000;      //default
 	private int port = 31113;           // default: unassigned Port. See: http://www.iana.org
 	private String deviceType;
@@ -107,6 +110,37 @@ public class Config {
 		return tty;
 	}
 
+	private void setTTYType(String s) {
+		ttyType = s;
+		log.info("Set ttyType: {}", ttyType);
+	}
+
+	public String getTTYType() {
+		return ttyType;
+	}
+
+	private void setTTYIP (String s) {
+		ttyIP = s;
+		log.info("Set ttyIP: {}", ttyIP);
+	}
+
+	public String getTTYIP() {
+		return ttyIP;
+	}
+
+	private void setTTYPort(String s) {
+		try {
+			ttyPort = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			log.error("Wrong Format for Port: {}", s);
+		}
+		log.info("Set TTY Port: {}", ttyPort);
+	}
+
+	public int getTTYPort() {
+		return ttyPort;
+	}
+
 	private void setPort(String s) {
 		try {
 			port = Integer.parseInt(s);
@@ -150,6 +184,12 @@ public class Config {
 		private Thing thing = null;
 		private Channel channel = null;
 		private String path;
+		private String[] urlPort;
+	    final String IPADDRESS_PATTERN =
+	    		"^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+	    		"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+	    		"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+	    		"([01]?\\d\\d?|2[0-4]\\d|25[0-5]):([0-9]{1,5})$";
 
 		@Override
 		public void characters(char[] ch, int start, int length)
@@ -157,7 +197,16 @@ public class Config {
 			String s = new String(ch, start, length);
 			switch (path) {
 			case "root.optolink.tty":
-				setTTY(s);
+				if (s.matches(IPADDRESS_PATTERN)) { 	// device is at an URL
+					setTTYType ("URL");
+					setTTY(s);
+					urlPort = s.split(":");
+					setTTYIP (urlPort[0]);
+					setTTYPort (urlPort[1]);
+				} else {								// device is local
+					setTTYType ("GPIO");
+					setTTY(s);
+				}
 				break;
 			case "root.optolink.ttytimeout":
 				setTtyTimeOut(s);

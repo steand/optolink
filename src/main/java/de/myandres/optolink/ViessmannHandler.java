@@ -21,12 +21,16 @@ import org.slf4j.LoggerFactory;
 public class ViessmannHandler {
 	static Logger log = LoggerFactory.getLogger(ViessmannHandler.class);
 	private ViessmannProtocol viessmannProtocol;
-	@SuppressWarnings("unused")
 	private OptolinkInterface optolinkInterface;
+	private Config config;
+	private String interfaceProtocol;
 
-	ViessmannHandler(String interfaceProtocol, OptolinkInterface optolinkInterface) throws Exception {
+	ViessmannHandler(Config config, OptolinkInterface optolinkInterface) throws Exception {
 		
 		log.debug("Init Handler for Protokoll {} ...", interfaceProtocol);
+		this.config = config;
+		this.optolinkInterface = optolinkInterface;
+		interfaceProtocol = config.getProtocol();
 		switch (interfaceProtocol) {
 		case "300":
 			viessmannProtocol = new Viessmann300(optolinkInterface);
@@ -58,13 +62,25 @@ public class ViessmannHandler {
 			break;
 			
 		case Telegram.DATE:
-			log.error("Updat of Date not implemented");
+			log.error("Update of Date not implemented");
 			return null	;
 		default : float fl = (new Float(value)) * telegram.getDivider();
 			locValue = (int) fl;
 			break;
 		}
+		if (this.config.getTTYType().matches("URL")) {
+			try {
+				optolinkInterface.open();
+			} catch (Exception e) {
+				log.error("Opening TTY type URL failed");
+				optolinkInterface.close();
+				return null;
+			}
+		}
 		int resultLength = viessmannProtocol.setData(buffer, telegram.getAddress() , telegram.getLength(), locValue);
+		if (this.config.getTTYType().matches("URL")) {
+			optolinkInterface.close();
+		}
 
 		if (resultLength == 0) return null;
         else return formatValue(buffer, telegram.getType(), telegram.getDivider());
@@ -75,12 +91,23 @@ public class ViessmannHandler {
 	
 	public synchronized String getValue(Telegram telegram)  {
 		byte [] buffer = new byte[16];
-		long result=0;
 		
+		if (this.config.getTTYType().matches("URL")) {
+			try {
+				optolinkInterface.open();
+			} catch (Exception e) {
+				log.error("Opening TTY type URL failed");
+				optolinkInterface.close();
+				return null;
+			}
+		}
 		int resultLength=viessmannProtocol.getData(buffer,telegram.getAddress(), telegram.getLength());
 		if (log.isTraceEnabled()) {
 	    	log.trace("Number of Bytes: {}", resultLength);
 	    	for (int i=0; i<resultLength; i++) log.trace("[{}] {} ",i,buffer[i]);
+		}
+		if (this.config.getTTYType().matches("URL")) {
+			optolinkInterface.close();
 		}
 		return formatValue(buffer, telegram.getType(), telegram.getDivider());
 		
@@ -90,12 +117,22 @@ public class ViessmannHandler {
 		
 		log.trace("Formating....");
 		long result = 0;
+		String timer = "";
 		switch (type) {
 		case Telegram.BOOLEAN:
 			if (buffer[0] == 0) return "OFF";
 			return "ON";
+		case Telegram.TIMER:
+			for (int i=0; i<8; i+=2) {
+				if (buffer[i] == -1) { // -1 equals 0xFF
+					timer += String.format("%01d:On:--:-- Off:--:-- ", (i/2)+1);
+				} else {
+					timer += String.format("%01d:On:%02d:%02d Off:%02d:%02d ", (i/2)+1, 
+							(buffer[i] & 0xF8)>>3,(buffer[i] & 7)*10,	(buffer[i+1] & 0xF8)>>3,(buffer[i+1] & 7)*10);
+				}
+			}
+			return timer;
 		case Telegram.DATE:
-			//TODO check it
 			return String.format("%02x%02x-%02x-%02xT%02x:%02x:%02x",
 					buffer[0],buffer[1],buffer[2],buffer[3],buffer[5],buffer[6],buffer[7])	;
 		case Telegram.BYTE:
