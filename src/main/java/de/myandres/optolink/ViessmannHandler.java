@@ -17,6 +17,8 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ViessmannHandler {
 	static Logger log = LoggerFactory.getLogger(ViessmannHandler.class);
@@ -54,18 +56,59 @@ public class ViessmannHandler {
 	
 	public synchronized String setValue(Telegram telegram, String value) {
 		byte [] buffer = new byte[16];
-		int locValue;
+		int locValue=0;
 		
 		switch (telegram.getType()) {
 		case Telegram.BOOLEAN:
-			if (value.equals("ON")) locValue=1; else  locValue=0;
+			if (value.equals("ON")) buffer[0]=1; else  buffer[0]=0;
 			break;
 			
 		case Telegram.DATE:
 			log.error("Update of Date not implemented");
 			return null	;
-		default : float fl = (new Float(value)) * telegram.getDivider();
-			locValue = (int) fl;
+		case Telegram.TIMER: // Receiving a string of format: "On:--:--Off:--:--On:--:--Off:--:--On:--:--Off:--:--On:--:-- Off:--:--"
+			String[] switchTimes = new String[8];
+			String[] timeParts = new String[2];
+			int hr;
+			int min;
+			int switchTimesLength = 0;
+			Pattern pattern = Pattern.compile("(\\d{1,2}:\\d{2})");
+			Matcher matcher = pattern.matcher(value);
+
+			while (matcher.find()) {
+				switchTimes[switchTimesLength++] = matcher.group(1);
+			}
+
+			if (switchTimesLength != 0 & (switchTimesLength % 2) == 0) {
+				for (int i = 0; i<switchTimesLength; i++) {
+					timeParts = switchTimes[i].split(":");
+					hr = Integer.parseInt(timeParts[0]);
+					min = Integer.parseInt(timeParts[1]);
+					if (hr > 23 | hr < 0 | min > 59 | min < 0) {
+						log.error("Invalid time. Hour %d has to between 0 and 23 and Minute %d between 0 and 59", hr,min);
+						return null;
+					}
+					hr = hr << 3;
+					min = (int) min/10;
+					buffer[i] = (byte) (hr | min);
+				}
+				for (int i = switchTimesLength; i < 8; i++) {
+					buffer[i] = (byte) 0xff;
+				}
+				for (int i = 0; i < 8; i+=2) {
+					if ((buffer[i] & 0xff) > (buffer[i+1] & 0xff)) {
+						log.error("Invalid time pair. On time %02x if bigger than Off time %02x", buffer[i],buffer[i+1]);
+						return null;
+					}
+				}
+			} else {
+				log.error("Error! SwitchTime has to be in on/off pairs");
+				return null;
+			}
+			locValue = 9;
+			break;
+		default : float fl = (new Float(value)) * telegram.getDivider(); // all other writable channels are byte or ubyte
+			buffer[0] = (byte) fl;
 			break;
 		}
 		if (this.config.getTTYType().matches("URL")) {
@@ -125,9 +168,9 @@ public class ViessmannHandler {
 		case Telegram.TIMER:
 			for (int i=0; i<8; i+=2) {
 				if (buffer[i] == -1) { // -1 equals 0xFF
-					timer += String.format("%01d:On:--:-- Off:--:-- ", (i/2)+1);
+					timer += "On:--:--Off:--:--";
 				} else {
-					timer += String.format("%01d:On:%02d:%02d Off:%02d:%02d ", (i/2)+1, 
+					timer += String.format("On:%02d:%02dOff:%02d:%02d", 
 							(buffer[i] & 0xF8)>>3,(buffer[i] & 7)*10,	(buffer[i+1] & 0xF8)>>3,(buffer[i+1] & 7)*10);
 				}
 			}

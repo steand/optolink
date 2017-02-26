@@ -171,7 +171,7 @@ public class SocketHandler  {
 							    viessmannHandler.setValue(telegram, value.toUpperCase())+
 							    "\"/>");
 			out.println("  </thing>");
-			out.println("<data>");
+			out.println("</data>");
 		}
 		
 	}
@@ -189,7 +189,7 @@ public class SocketHandler  {
 				}
 			}
 			out.println("  </thing>");
-			out.println("<data>");
+			out.println("</data>");
 		}
 	}
 	
@@ -211,7 +211,7 @@ public class SocketHandler  {
 			   }
 			}
 			out.println("  </thing>");
-			out.println("<data>");
+			out.println("</data>");
 		}
 	}
 	
