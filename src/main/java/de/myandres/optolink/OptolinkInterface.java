@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class OptolinkInterface {
 					socket.close();
 					log.debug("TTY type URL {} closed", this.config.getTTY());
 				} catch (IOException e) {
-					log.debug("TTY type URL {} can´t be closed", this.config.getTTY());
+					log.debug("TTY type URL {} can't be closed", this.config.getTTY());
 				}
 			}
 		} else {
@@ -131,6 +132,9 @@ public class OptolinkInterface {
 			data = input.read();
 			log.trace("RxD: {}", String.format("%02X", data));
 			if (data == -1) log.trace("Timeout from TTY {}", this.config.getTTY());
+			return data;
+		} catch (SocketTimeoutException e) {
+			log.trace("Timeout from TTY {}", this.config.getTTY());
 			return data;
 		} catch (Exception e) {
 			log.error("Can't read Data from TTY {}", this.config.getTTY(), e);
