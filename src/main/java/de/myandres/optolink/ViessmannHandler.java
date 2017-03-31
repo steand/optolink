@@ -79,7 +79,7 @@ public class ViessmannHandler {
 				switchTimes[switchTimesLength++] = matcher.group(1);
 			}
 
-			if (switchTimesLength != 0 & (switchTimesLength % 2) == 0) {
+			if ((switchTimesLength % 2) == 0) {
 				for (int i = 0; i<switchTimesLength; i++) {
 					timeParts = switchTimes[i].split(":");
 					hr = Integer.parseInt(timeParts[0]);
