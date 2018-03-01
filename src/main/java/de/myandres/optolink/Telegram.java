@@ -29,6 +29,7 @@ public class Telegram {
 	public final static byte INT =       6; // 4 byte -> long
     public final static byte UINT =      7; // 4 Byte -> long
     public final static byte DATE =      8; // 8 Byte -> date
+    public final static byte TIMER =     9; // 8 Byte -> timer
     public final static byte DUMP =      99; // Dump for unknown Telegram-Type
 
     
@@ -116,6 +117,10 @@ public class Telegram {
 				break;
 			case "date":
 				this.type = Telegram.DATE;
+				length=8;
+				break;
+			case "timer":
+				this.type = Telegram.TIMER;
 				length=8;
 				break;
 			default: {

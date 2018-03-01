@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Mapping for vitotronic/optolink addresses to openhab things.
+
+channel id starts with '*' :
+     -    will not send to openhab but it is posible to ask for this ID on the interface.
+     -    is not implemented in openhab
+     
+Telegram types:
+	BOOLEAN = 1 Byte -> boolean
+	BYTE    = 1 Byte -> short
+	UBYTE   = 1 Byte -> short
+	SHORT   = 2 Byte -> int
+	USHORT  = 2 Byte -> int
+	INT     = 4 byte -> long
+    UINT    = 4 Byte -> long
+    DATE    = 8 Byte -> date (read only)
+	TIMER	= 8 Byte -> timer
+    
+For more information about addresses and types see: http://openv.wikispaces.com/
+
+-->
+
+
+
+<optolink device="20cb" id="200" protocol="KW">
+
+     <adapterID>VScotH01</adapterID>        <!-- Unique ID on the Network-->
+     <tty>192.168.178.25:10001</tty>        <!-- serial port of the optolink adapter-->
+     <ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
+     <port>31113</port>                      <!-- port for incoming communication. See also: http://www.iana.org -->
+
+     <!-- Addressen die von diesem 'device' unterstützt werden -->
+    
+     <thing type="heating" id="300W">
+          <description>Viessmann Vitodens 300-W</description>
+          <channel  id="*systemid">
+               <description>System ID</description>
+               <telegram address="00F8" type="short"/>
+          </channel>
+          <channel id="systemtime">
+               <description>System Date and Time</description>
+               <telegram address="088E" type="date" />
+          </channel>
+          <channel id="outside_temp">
+               <description>Outside Temperature</description>
+               <telegram address="0800" type="short" divider="10"/>
+          </channel>
+          <channel id="malfunction">
+               <description>General malfunction heating</description>
+               <telegram address="0A82" type="boolean"/>
+          </channel>
+     </thing>
+     <!--# Puffer-StorageTank -->
+     <thing type="storagetank" id="storagetank">
+          <description>Hot Water Storage Tank an Buffer</description>
+          <channel id="hotwater_temp">
+               <description>Hot water temperature.</description>
+               <telegram  address="0804" type="short" divider="10"/>
+          </channel>
+          <channel id="hotwater_set_temp">
+               <description>Hot water temperatur target temperature.</description>
+               <telegram  address="6300" type="byte" divider="1"/>
+          </channel>
+          <channel id="circuitpump">
+               <description>Cirulation Pump for Hot Water TODO which pump?</description>
+               <telegram  address="0490" type="boolean" />
+          </channel>
+    </thing>
+
+    <!--# Burner -->
+    <thing type="burner" id="burner">
+          <description>Burner</description>
+           <channel id="power">
+               <description>The furnace Power in %</description>
+               <telegram address="A38F" type="ubyte" divider="1"/>
+          </channel>
+          <channel id="exhaust_temp">
+               <description>Exhaust temperature</description>
+               <telegram address="0808" type="short" divider="10"/>
+          </channel>
+          <channel id="boiler_temp">
+               <description>Boiler temperature</description>
+               <telegram address="0810" type="short" divider="10"/>
+          </channel>
+          <channel id="*stat">
+              <!-- Brennerstatus ist noch nicht klar Addresse noch gesucht -->
+               <description>State of Burner </description>
+               <telegram  address="0962" type="short" />
+          </channel>
+     </thing>
+
+        <!--# Heizkreis 2 -->
+    <thing type="circuit" id="circuit2">
+          <description>Heading Circuit of the first Floor.</description>
+          <channel id="flowtemperature" >
+               <description>Flow temperature</description>
+               <telegram address="3900" type="short" divider="10"/>
+          </channel>
+          <channel id="pump">
+               <description>pump</description>
+               <telegram  address="3906" type="boolean" />
+          </channel>
+           <channel id="operationmode" >
+               <description>Operation mode (0,1,2,3,4).</description>
+               <telegram address="3500" type="byte"/>
+         </channel>
+          <channel id="room_temp">
+               <description>Inside Temperature</description>
+               <telegram address="0898" type="short" divider="10"/>
+          </channel>
+         <channel id="room_set_temp" >
+               <description>Room Set temperature.</description>
+               <telegram address="3306" type="byte"/>
+         </channel>
+         <channel id="timer_MO" >
+               <description>Timer Monday</description>
+               <telegram address="3000" type="timer"/>
+         </channel>
+         <channel id="timer_TU" >
+               <description>Timer Tuesday</description>
+               <telegram address="3008" type="timer"/>
+         </channel>
+         <channel id="timer_WE" >
+               <description>Timer Wednesday</description>
+               <telegram address="3010" type="timer"/>
+         </channel>
+         <channel id="timer_TH" >
+               <description>Timer Thursday</description>
+               <telegram address="3018" type="timer"/>
+         </channel>
+         <channel id="timer_FR" >
+               <description>Timer Friday</description>
+               <telegram address="3020" type="timer"/>
+         </channel>
+         <channel id="timer_SA" >
+               <description>Timer Saturday</description>
+               <telegram address="3028" type="timer"/>
+         </channel>
+         <channel id="timer_SU" >
+               <description>Timer Sunday</description>
+               <telegram address="3030" type="timer"/>
+         </channel>
+         <channel id="timer_ww_MO" >
+               <description>Timer Monday</description>
+               <telegram address="2100" type="timer"/>
+         </channel>
+         <channel id="timer_ww_TU" >
+               <description>Timer Tuesday</description>
+               <telegram address="2108" type="timer"/>
+         </channel>
+         <channel id="timer_ww_WE" >
+               <description>Timer Wednesday</description>
+               <telegram address="2110" type="timer"/>
+         </channel>
+         <channel id="timer_ww_TH" >
+               <description>Timer Thursday</description>
+               <telegram address="2118" type="timer"/>
+         </channel>
+         <channel id="timer_ww_FR" >
+               <description>Timer Friday</description>
+               <telegram address="2120" type="timer"/>
+         </channel>
+         <channel id="timer_ww_SA" >
+               <description>Timer Saturday</description>
+               <telegram address="2128" type="timer"/>
+         </channel>
+         <channel id="timer_ww_SU" >
+               <description>Timer Sunday</description>
+               <telegram address="2130" type="timer"/>
+         </channel>
+	 </thing>
+</optolink>

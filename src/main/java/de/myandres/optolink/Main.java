@@ -36,10 +36,10 @@ public class Main {
 			config = new Config("conf/optolink.xml");
 
 			// Init TTY Handling for Optolink
-			optolinkInterface = new OptolinkInterface(config.getTTY(), config.getTtyTimeOut());
+			optolinkInterface = new OptolinkInterface(config);
 
 			// Init ViessmannHandler
-			viessmannHandler = new ViessmannHandler(config.getProtocol(), optolinkInterface);
+			viessmannHandler = new ViessmannHandler(config, optolinkInterface);
 
 		} catch (Exception e) {
 			log.error("Something is wrong not init", e);

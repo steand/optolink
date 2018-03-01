@@ -1,2 +1,11 @@
 /target/
 /.classpath
+conf/
+logs/
+.settings/
+optolink.xml
+start.bat
+start.sh
+start_debug.sh
+things-types vs optolink - comparison.xlsx
+.gitignore

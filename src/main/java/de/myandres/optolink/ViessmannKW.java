@@ -45,7 +45,7 @@ public class ViessmannKW implements ViessmannProtocol {
         	}
         
         }    
-        optolinkInterface.write(0x01); // Anwser to 0x05
+        optolinkInterface.write(0x01); // Answer to 0x05
         optolinkInterface.write(0xF7); // Read Data
         optolinkInterface.write((byte)(address >> 8));   // upper Byte of address
         optolinkInterface.write((byte)(address & 0xff)); // lower Byte of address
@@ -68,7 +68,6 @@ public class ViessmannKW implements ViessmannProtocol {
 
 	@Override
 	public int setData(byte[] buffer, int address, int length, int value) {
-		// TODO Test it
 		
 		int j=0;
 		optolinkInterface.flush();
@@ -81,17 +80,25 @@ public class ViessmannKW implements ViessmannProtocol {
         	}
         
         }    
-        optolinkInterface.write(0x01); // Anwser to 0x05
+        optolinkInterface.write(0x01); // Answer to 0x05
         optolinkInterface.write(0xF4); // write Data
         optolinkInterface.write((byte)(address >> 8));   // upper Byte of address
         optolinkInterface.write((byte)(address & 0xff)); // lower Byte of address
         optolinkInterface.write((byte)length);           // number of expected bytes
-        
-        for (int i=0; i<length; i++) {
-        	buffer[i] = (byte) optolinkInterface.read();
-        } 
-        return length;
-		
+        switch (length) {
+        case 1: optolinkInterface.write(buffer[0]); 	 // write lower byte
+        		break;
+        case 8: optolinkInterface.write(buffer[0]); // Timer data has length 8
+        		optolinkInterface.write(buffer[1]);
+        		optolinkInterface.write(buffer[2]);
+        		optolinkInterface.write(buffer[3]);
+        		optolinkInterface.write(buffer[4]);
+        		optolinkInterface.write(buffer[5]);
+        		optolinkInterface.write(buffer[6]);
+        		optolinkInterface.write(buffer[7]);
+        		break;
+        }
+		return length;
 	}
 
 }
