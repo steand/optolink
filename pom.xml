@@ -5,6 +5,10 @@
 	<artifactId>optolink</artifactId>
 	<packaging>jar</packaging>
 	<name>optolink</name>
+	<properties>
+	   <maven.compiler.source>1.8</maven.compiler.source>
+	   <maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
@@ -42,7 +46,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.10</version>
-			<scope>runtime</scope>
+<!-- 			<scope>runtime</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -57,5 +61,5 @@
 		</dependency>
 	</dependencies>
 
-	<version>1.0.1</version>
+	<version>1.0.0-RC1</version>
 </project>
