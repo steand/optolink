@@ -26,7 +26,7 @@ Installing:
 1. Install the rxtx (apt)
 2. Config /dev/ttyAMA0 (see: https://cae2100.wordpress.com/2012/12/23/raspberry-pi-and-the-serial-port/)
 3. Install your optolink hardware 
-4. copy: optolink-runtime.zip from the target folder to Rasberry and extract it.
+4. copy: optolink-bin.zip from the target folder to Rasberry and extract it.
 5. Edit conf/optolink.xml for your heading system.
 6. start it: ```./start_debug.sh ```  
 
