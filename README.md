@@ -12,14 +12,14 @@ to search the adapter in the local network.
 Primary is is develop for a adaption from [openhab2](https://github.com/openhab/openhab2/). 
 It supports on the northbound the concept of openhab2 things.
 
-##Build
+## Build
 The application is develop in Eclipse (Luna) with maven support.
 Requierd Lib's: rxtx, slf4j, logback (see pom.xml file)
 You can build runtime by Run->Run As->Maven install.
 Files for runtime are found in ./traget
 Or download the install package from Github.
 
-##Install & running
+## Install & running
 All test was running on a Raspberry PI B with Raspbian "wheezy".  
 Installing:  
    
@@ -31,7 +31,7 @@ Installing:
 6. start it: ```./start_debug.sh ```  
 
 
-##Test it
+## Test it
 Run a terminal programm (like putty), connect to you raspberry by using port 31113 and raw protocol.
 Suported command:
   
@@ -39,7 +39,7 @@ Suported command:
 * get Thing.Id [channel.Id,channel.Id,..] -> get Data for thing from heating system.
 * set Thing-Id:Channel.Id value  (The syntax of Value is not checked)
 
-##Further doing (my ToDo List)
+## Further doing (my ToDo List)
 1. bug-fixing (if bugs found ;-)
 2. Build a stable version (together with openhab2).
 
