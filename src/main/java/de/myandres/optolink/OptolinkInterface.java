@@ -24,14 +24,16 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+import static com.fazecast.jSerialComm.SerialPort.TIMEOUT_READ_BLOCKING;
+import static com.fazecast.jSerialComm.SerialPort.TIMEOUT_WRITE_BLOCKING;
+
 public class OptolinkInterface {
 
-	static Logger log = LoggerFactory.getLogger(OptolinkInterface.class);
+	private final static Logger log = LoggerFactory.getLogger(OptolinkInterface.class);
 
 	private OutputStream output;
 	private InputStream input;
-	private Config config;
-//	private CommPortIdentifier portIdentifier;
+	private final Config config;
 	private SerialPort serialPort;
 	private Socket socket = null;
 
@@ -49,25 +51,26 @@ public class OptolinkInterface {
 		} else { // device is local
 			log.debug("Open TTY {} ...", this.config.getTTY());
 			try {
+				listAvailablePorts();
+
 				serialPort = SerialPort.getCommPort(this.config.getTTY());
+				boolean portOpen = serialPort.openPort();
+
+				if (!portOpen) {
+					log.error("TTY {} in use.", this.config.getTTY());
+					throw new IOException();
+				}
+
 				serialPort.setComPortParameters(4800, 8, 2, SerialPort.EVEN_PARITY);
+				serialPort.setComPortTimeouts(TIMEOUT_WRITE_BLOCKING | TIMEOUT_READ_BLOCKING, this.config.getTtyTimeOut(), 0);
 
 				input = serialPort.getInputStream();
 				output = serialPort.getOutputStream();
-//			this.serialPort.enableReceiveTimeout(this.config.getTtyTimeOut()); // Reading Time-Out
 				log.debug("TTY {} opened", this.config.getTTY());
 			} catch (SerialPortInvalidPortException e)  {
 				log.error("Can't open serial port", e);
 				throw new IOException();
 			}
-//			portIdentifier = CommPortIdentifier.getPortIdentifier(this.config.getTTY());
-
-//			if (portIdentifier.isCurrentlyOwned()) {
-//				log.error("TTY {} in use.", this.config.getTTY());
-//				throw new IOException();
-//			}
-//			serialPort = portIdentifier.open(this.getClass().getName(), this.config.getTtyTimeOut());
-//			SerialPort serialPort = this.serialPort;
 		}
 	}
 
@@ -120,7 +123,7 @@ public class OptolinkInterface {
 	}
 
 	public synchronized void write(int data) {
-		log.trace("TxD: {}", String.format("%02X", (byte) data));
+		log.debug("TxD: {}", String.format("%02X", (byte) data));
 		try {
 			output.write((byte) data);
 		} catch (IOException e) {
@@ -132,7 +135,7 @@ public class OptolinkInterface {
 		int data = -1;
 		try {
 			data = input.read();
-			log.trace("RxD: {}", String.format("%02X", data));
+			log.debug("RxD: {}", String.format("%02X", data));
 			if (data == -1) log.trace("Timeout from TTY {}", this.config.getTTY());
 			return data;
 		} catch (SocketTimeoutException e) {
@@ -149,4 +152,11 @@ public class OptolinkInterface {
 		return this.config.getDeviceType();
 	}
 
+	private void listAvailablePorts() {
+		SerialPort[] serialPorts = SerialPort.getCommPorts();
+		log.debug("Available ports:");
+		for (SerialPort serialPort : serialPorts) {
+			log.debug("{}: {}", serialPort.getPortDescription(), serialPort.getSystemPortName());
+		}
+	}
 }
