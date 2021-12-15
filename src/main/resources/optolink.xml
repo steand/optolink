@@ -5,7 +5,7 @@ Mapping for vitotronic/optolink addresses to openhab things.
 channel id starts with '*' :
      -    will not send to openhab but it is posible to ask for this ID on the interface.
      -    is not implemented in openhab
-     
+
 Telegram types:
 	BOOLEAN = 1 Byte -> boolean
 	BYTE    = 1 Byte -> short
@@ -15,7 +15,7 @@ Telegram types:
 	INT     = 4 byte -> long
     UINT    = 4 Byte -> long
     DATE    = 8 Byte -> date (read only)
-    
+
 For more information about addresses and types see: http://openv.wikispaces.com/
 
 -->
@@ -25,12 +25,12 @@ For more information about addresses and types see: http://openv.wikispaces.com/
 <optolink device="2033" id="300P" protocol="300">
 
      <adapterID>VITOLIGNO</adapterID>        <!-- Unique ID on the Network-->
-     <tty>/dev/ttyAMA0</tty>                 <!-- serial port of the optolink adapter-->
+     <tty>/dev/ttyUSB0</tty>                 <!-- serial port of the optolink adapter-->
      <ttytimeout>2000</ttytimeout>           <!-- milliseconds for reading timeout tty -->
      <port>31113</port>                      <!-- port for incoming communication. See also: http://www.iana.org -->
 
      <!-- Addressen die von diesem 'device' unterst�tzt werden -->
-     
+
      <thing type="heating" id="300P">
           <description>Viessmann Vitoligno 300P</description>
           <channel  id="*systemid">
@@ -98,8 +98,8 @@ For more information about addresses and types see: http://openv.wikispaces.com/
           <channel id="fanspeed_target">
                <description>target Fanspeed </description>
                <telegram address="0B1C" type="ushort" divider="1"/>
-          </channel>          
-             
+          </channel>
+
           <channel id="power">
                <description>The furnace Power in %</description>
                <telegram address="0B20" type="ubyte" divider="1"/>
@@ -152,7 +152,7 @@ For more information about addresses and types see: http://openv.wikispaces.com/
          <channel id="party_temp" >
                <description>Party temperature.</description>
                <telegram address="2308" type="byte"/>
-         </channel>               
+         </channel>
          <channel id="room_temp" >
                <description>Party temperature.</description>
                <telegram address="2306" type="byte"/>
@@ -197,7 +197,7 @@ For more information about addresses and types see: http://openv.wikispaces.com/
          <channel id="party_temp" >
                <description>Party temperature.</description>
                <telegram address="3308" type="byte"/>
-         </channel>               
+         </channel>
          <channel id="room_temp" >
                <description>Room temperature.</description>
                <telegram address="3306" type="byte"/>
